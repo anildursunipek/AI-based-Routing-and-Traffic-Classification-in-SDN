@@ -30,7 +30,7 @@ def run():
     net.pingAll()
     print( "Testing bandwidth between h1 and h4" )
     h1, h4 = net.get( 'h1', 'h4' )
-    net.iperf( (h1, h4) ) #  retrieves a node (host or switch) object by name
+    net.iperf( (h1, h4) ) # retrieves a node (host or switch) object by name
     CLI( net )
     # net.stop()
 
