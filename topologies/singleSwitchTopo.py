@@ -1,7 +1,10 @@
 from mininet.net import Mininet
 from mininet.topo import Topo
-from mininet.log import setLogLevel
+from mininet.log import setLogLevel, info
 from mininet.util import dumpNodeConnections
+from mininet.cli import CLI
+from mininet.node import CPULimitedHost
+from mininet.link import TCLink
 
 class SingleSwitchTopo(Topo):
     "Single switch connected to n hosts."
@@ -11,23 +14,30 @@ class SingleSwitchTopo(Topo):
 
         # n-> number of hosts"
         for h in range(n):
-            host = self.addHost('h%s' % (h+1)) # Example host names = h1, h2, h3 ...
-            self.addLink(host,singleSwitch)
+            # Each host gets 50%/n of system CPU
+            host = self.addHost('h%s' % (h+1), cpu=0.5/n) # Example host names = h1, h2, h3 ...
+            # 20 Mbps, 3ms delay, 1% loss, 1000 packet queue
+            self.addLink(host, singleSwitch, bw=10, delay='5ms', loss=2, max_queue_size=1000, use_htb=True)
 
 def run():
     "Create a newtork"
     topo = SingleSwitchTopo(n=4) # 4 hosts 1 switch
-    net = Mininet(topo=topo)
+    net = Mininet(topo=topo, host=CPULimitedHost, link=TCLink)
     net.start()
     print("Dumping host connections")
-    dumpNodeConnections(net.hosts)
+    dumpNodeConnections(net.hosts) # dumps connections to/from a set of nodes.
     # Testing network
     net.pingAll()
-    net.stop
+    print( "Testing bandwidth between h1 and h4" )
+    h1, h4 = net.get( 'h1', 'h4' )
+    net.iperf( (h1, h4) ) #  retrieves a node (host or switch) object by name
+    CLI( net )
+    # net.stop()
 
 if __name__ == "__main__":
     setLogLevel("info") # Tell mininet to print useful information
     run()
+
     """
     Output
     ------
