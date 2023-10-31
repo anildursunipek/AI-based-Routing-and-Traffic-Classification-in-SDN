@@ -1,0 +1,49 @@
+<div class="grid">
+    <div class="col-12 text-center">
+        <h3>SWITCH LİST</h3>
+    </div>
+    <div class="col-12">
+        <p-table [value]="[1,2,3]" [tableStyle]="{ 'min-width': '50rem' }">
+            <ng-template pTemplate="caption">
+                <div class="flex align-items-center justify-content-between">
+                    Switches Connected
+                </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Switch ID</th>
+                    <th>IPv4 Address</th>
+                    <th>Connected Since</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-switch>
+                <tr>
+                    <td>{{ switch }}</td>
+                    <td>name {{ switch }}</td>
+                    <td>/127.0.0.1:3673{{ switch }}</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+    <div class="col-12">
+        <p-table [value]="[1]" [tableStyle]="{ 'min-width': '50rem' }">
+            <ng-template pTemplate="caption">
+                <div class="flex align-items-center justify-content-between">
+                    Switch Roles
+                </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Switch MAC</th>
+                    <th>Role</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-switch>
+                <tr>
+                    <td>{{ switch }}</td>
+                    <td>name {{ switch }}</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>

@@ -11,6 +11,7 @@ import { TableModule } from 'primeng/table';
 import { MenuComponent } from './components/menu/menu.component';
 import { MenuModule } from 'primeng/menu';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { SwitchListComponent } from './components/switch/switch-list/switch-list.component';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     SplashScreenComponent,
     DashboardComponent,
     HostListComponent,
-    MenuComponent
+    MenuComponent,
+    SwitchListComponent
   ],
   imports: [
     BrowserModule,

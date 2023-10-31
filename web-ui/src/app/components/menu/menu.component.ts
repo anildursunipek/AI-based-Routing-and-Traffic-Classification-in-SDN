@@ -14,14 +14,18 @@ export class MenuComponent implements OnInit{
           {
               label: 'Controller (Home)',
               icon: 'pi pi-home',
+              routerLink: 'dashboard'
           },
           {
               label: 'Switches',
-              icon: 'pi pi-sync'
+              icon: 'pi pi-sync',
+              routerLink: 'switch/list'
+
           },
           {
               label: 'Hosts',
-              icon: 'pi pi-desktop'
+              icon: 'pi pi-desktop',
+              routerLink: 'host/list'
           },
           {
               label: 'Links',
