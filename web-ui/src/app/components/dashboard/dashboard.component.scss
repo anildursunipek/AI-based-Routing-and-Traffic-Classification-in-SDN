@@ -1,0 +1,18 @@
+.mycard{
+    background-color: #5cb85c; 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    padding: 15px; 
+    border-radius: 10px;
+    i{
+        color: white;
+    }
+    .text{
+        text-align: end; 
+        color: white;
+        .text1{
+            font-size: 45px; 
+        }
+    }
+}

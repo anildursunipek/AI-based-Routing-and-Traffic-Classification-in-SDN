@@ -1,0 +1,29 @@
+
+.container {
+    background: url('https://media0.giphy.com/media/fw8uZriJW4TlhmZnUj/giphy.gif?cid=ecf05e47kexwfb01w4bfmupl3x73lqp976id8euj8aw7unjt&ep=v1_gifs_search&rid=giphy.gif&ct=g') center center no-repeat; /* Gif dosyasının yolunu belirtin */
+    background-size: cover; /* Gif'in boyutunu sayfa boyutlarına uygun olarak sığdırır */
+    padding: 20px;
+    display: grid;
+    width: 100%;
+    height: 100vh;
+  }
+  
+  .splash {
+    transition: opacity ease-in-out 3s;
+    opacity: 1;
+    pointer-events: auto;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .text {
+    font-size: 50px;
+    color: white;
+  }
+  
+  .splash.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
