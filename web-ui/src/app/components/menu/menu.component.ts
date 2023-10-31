@@ -29,7 +29,8 @@ export class MenuComponent implements OnInit{
           },
           {
               label: 'Links',
-              icon: 'pi pi-compass'
+              icon: 'pi pi-compass',
+              routerLink:"/link/list"
           },
           {
               label: 'Topology',

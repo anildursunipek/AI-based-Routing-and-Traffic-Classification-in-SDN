@@ -4,13 +4,14 @@ import { SplashScreenComponent } from './components/splash-screen/splash-screen.
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { HostListComponent } from './components/host/host-list/host-list.component';
 import { SwitchListComponent } from './components/switch/switch-list/switch-list.component';
+import { LinkListComponent } from './components/link/link-list/link-list.component';
 
 const routes: Routes = [
   {path: '', component: SplashScreenComponent},
   {path: 'dashboard', component: DashboardComponent},
   {path: 'host/list', component: HostListComponent},
-  {path: 'switch/list', component: SwitchListComponent}
-
+  {path: 'switch/list', component: SwitchListComponent},
+  {path: 'link/list', component: LinkListComponent},
 ];
 
 @NgModule({

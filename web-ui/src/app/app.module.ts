@@ -12,6 +12,7 @@ import { MenuComponent } from './components/menu/menu.component';
 import { MenuModule } from 'primeng/menu';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { SwitchListComponent } from './components/switch/switch-list/switch-list.component';
+import { LinkListComponent } from './components/link/link-list/link-list.component';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,8 @@ import { SwitchListComponent } from './components/switch/switch-list/switch-list
     DashboardComponent,
     HostListComponent,
     MenuComponent,
-    SwitchListComponent
+    SwitchListComponent,
+    LinkListComponent
   ],
   imports: [
     BrowserModule,
