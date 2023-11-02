@@ -13,6 +13,12 @@ import { MenuModule } from 'primeng/menu';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { SwitchListComponent } from './components/switch/switch-list/switch-list.component';
 import { LinkListComponent } from './components/link/link-list/link-list.component';
+import { SelectButtonModule } from 'primeng/selectbutton';
+import { FormsModule } from '@angular/forms';
+import { InputTextModule } from 'primeng/inputtext';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { ButtonModule } from 'primeng/button';
+import { HttpClientModule } from  '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -30,7 +36,13 @@ import { LinkListComponent } from './components/link/link-list/link-list.compone
     ProgressSpinnerModule,
     TableModule,
     MenuModule,
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+    SelectButtonModule,
+    FormsModule,
+    InputTextModule,
+    InputNumberModule,
+    ButtonModule,
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent]

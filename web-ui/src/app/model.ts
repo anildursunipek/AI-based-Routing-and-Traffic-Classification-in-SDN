@@ -1,4 +1,12 @@
 export class Host{
-    id?:string;
-    name?:string;
+    name:string;
+    MAC:string;
+    IP:string;
+}
+
+export class Switch{
+    name:string;
+    dpid:string;
+    ports:string;
+    host_connections:Host[] = new Array();
 }
