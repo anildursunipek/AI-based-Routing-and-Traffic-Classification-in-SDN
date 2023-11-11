@@ -1,8 +1,9 @@
 from mininet.net import Mininet
 from mininet.node import OVSSwitch
 from mininet.topo import LinearTopo, Topo
-from mininet.node import RemoteController
+from mininet.node import RemoteController, CPULimitedHost
 from mininet.link import TCLink
+import random
 
 #Global Veriables
 global net
@@ -52,7 +53,6 @@ class CustomTopo(Topo):
         h32 = self.addHost('h32')
         h33 = self.addHost('h33')
         h34 = self.addHost('h34')
-        h35 = self.addHost('h35')
 
         #switches
         s1 = self.addSwitch('s1')
@@ -67,58 +67,67 @@ class CustomTopo(Topo):
         # s10 = self.addSwitch('s10')
 
         #Links
+        linkopts1	=	dict(bw=50,	delay='3ms', loss=1, max_queue_size=1000, use_htb=True)
+        linkopts2	=	dict(bw=100, delay='2ms', loss=1, max_queue_size=1000, use_htb=True)
+        linkopts3	=	dict(bw=30,	delay='5ms', loss=1, max_queue_size=1000, use_htb=True)
+        linkopts4	=	dict(bw=150, delay='1ms', loss=1, max_queue_size=1000, use_htb=True)
+        linkopts5	=	dict(bw=250, delay='1ms', loss=1, max_queue_size=1000, use_htb=True)
+
+        # swith to switch
         self.addLink(s1,s2)
         self.addLink(s1,s3)
         self.addLink(s1,s4)
         self.addLink(s1,s5)
         self.addLink(s2,s7)
+        
         self.addLink(s7,s4)
         self.addLink(s4,s6)
         self.addLink(s6,s5)
         self.addLink(s5,s8)
         self.addLink(s8,s3)
 
-        self.addLink(s2, h1)
-        self.addLink(s2, h2)
-        self.addLink(s2, h3)
-        self.addLink(s2, h4)
-        self.addLink(s2, h5)
+        # swith to host
+        self.addLink(s2, h1, **linkopts1)
+        self.addLink(s2, h2, **linkopts2)
+        self.addLink(s2, h3, **linkopts3)
+        self.addLink(s2, h4, **linkopts4)
+        self.addLink(s2, h5, **linkopts5)
         
-        self.addLink(s7, h6)
-        self.addLink(s7, h7)
-        self.addLink(s7, h8)
-        self.addLink(s7, h9)
-        self.addLink(s7, h10)
+        self.addLink(s7, h6, **linkopts1)
+        self.addLink(s7, h7, **linkopts2)
+        self.addLink(s7, h8, **linkopts3)
+        self.addLink(s7, h9, **linkopts4)
+        self.addLink(s7, h10, **linkopts5)
         
-        self.addLink(s4, h11)
-        self.addLink(s4, h12)
-        self.addLink(s4, h13)
-        self.addLink(s4, h14)
-        self.addLink(s4, h15)
+        self.addLink(s4, h11, **linkopts1)
+        self.addLink(s4, h12, **linkopts2)
+        self.addLink(s4, h13, **linkopts3)
+        self.addLink(s4, h14, **linkopts4)
+        self.addLink(s4, h15, **linkopts5)
 
-        self.addLink(s6, h16)
-        self.addLink(s6, h17)
-        self.addLink(s6, h18)
-        self.addLink(s6, h19)
-        self.addLink(s6, h20)
+        self.addLink(s6, h16, **linkopts1)
+        self.addLink(s6, h17, **linkopts2)
+        self.addLink(s6, h18, **linkopts3)
+        self.addLink(s6, h19, **linkopts4)
+        self.addLink(s6, h20, **linkopts5)
 
-        self.addLink(s5, h21)
-        self.addLink(s5, h22)
-        self.addLink(s5, h23)
-        self.addLink(s5, h24)
-        self.addLink(s5, h25)
+        self.addLink(s5, h21, **linkopts1)
+        self.addLink(s5, h22, **linkopts2)
+        self.addLink(s5, h23, **linkopts3)
+        self.addLink(s5, h24, **linkopts4)
+        self.addLink(s5, h25, **linkopts5)
 
-        self.addLink(s8, h26)
-        self.addLink(s8, h27)
-        self.addLink(s8, h28)
-        self.addLink(s8, h29)
-        self.addLink(s8, h30)
+        self.addLink(s8, h26, **linkopts1)
+        self.addLink(s8, h27, **linkopts2)
+        self.addLink(s8, h28, **linkopts3)
+        self.addLink(s8, h29, **linkopts4)
+        self.addLink(s8, h30, **linkopts5)
 
-        self.addLink(s3, h31)
-        self.addLink(s3, h32)
-        self.addLink(s3, h33)
-        self.addLink(s3, h34)
-        self.addLink(s3, h35)
+        self.addLink(s3, h31, **linkopts1)
+        self.addLink(s3, h32, **linkopts2)
+        self.addLink(s3, h33, **linkopts3)
+        self.addLink(s3, h34, **linkopts4)
+
 def buildCustomTopo():
     topo = CustomTopo()
     return topo
@@ -130,13 +139,38 @@ def buildLinearTopo(numberOfSwitches: int, hostsPerSwitch: int):
 
 def initalizeTopology(topo):
     global net
-    net = Mininet(topo=topo, build=False, switch=OVSSwitch, link=TCLink,autoStaticArp=True)
+    net = Mininet(topo=topo, build=False, host=CPULimitedHost, switch=OVSSwitch, link=TCLink,autoStaticArp=True)
     remoteControllerIp = "127.0.0.1"
 
     # Adding floodlight controller here
     net.addController("c1", controller=RemoteController,switch=OVSSwitch, ip=remoteControllerIp, port=6653)
     net.build()
     net.start()
+
+def testTopology():
+    global net
+    h1 = net.get('h1')
+    h16 = net.get('h16')
+    result = net.iperf((h1, h16), l4Type='UDP')
+    return result
+
+def generateVirtualTraffic():
+    global net
+    hosts = net.hosts
+    hostCount = len(hosts)
+    print("Testing------>" , " hostCount: " , hostCount , " type: " , type(hostCount))
+    # print(len(hosts))
+
+    senders = random.sample(hosts, int(hostCount / 2))
+    receivers = [host for host in hosts if host not in senders]
+    # print(senders)
+    # print(receivers)
+
+    for i in range(int(hostCount / 2)):
+        sender, receiver = senders[i], receivers[i]
+        result = net.iperf((sender, receiver), l4Type='UDP')
+        print("it worked")
+        print(result)
 
 def stopTopology():
     global net

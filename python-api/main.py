@@ -15,7 +15,7 @@ def startLinearTopology(numberOfSwitches: int, hostsPerSwitch: int):
         "status" : 200
     }
 
-@app.route('/topology/startCustomTopology')
+@app.route('/topology/startCustom')
 def startCustomTopology():
     topo = network.buildCustomTopo()
     network.initalizeTopology(topo = topo)
@@ -23,14 +23,14 @@ def startCustomTopology():
         "status" : 200
     }
 
-@app.route('/stopTopology')
+@app.route('/topology/stop')
 def stopTopology():
     network.stopTopology()
     return {
         "status": 200
     }
 
-@app.route('/hosts', methods=['GET'])
+@app.route('/topology/hosts', methods=['GET'])
 def getHosts():
     result = network.getHosts()
     response = jsonify({
@@ -39,13 +39,8 @@ def getHosts():
         "message":"success"
     })
     return response
-    
 
-@app.route('/hosts/<hostNmae>')
-def getHostByName(hostName:str):
-    return {}
-
-@app.route('/switches')
+@app.route('/topology/switches')
 def getSwitches():
     result = network.getSwitches()
     response = jsonify({
@@ -55,8 +50,14 @@ def getSwitches():
     })
     return response
 
-@app.route('/switches/<switchName>')
-def getSwitchByName(switchName:str):
+@app.route('/topology/test')
+def testTopology():
+    result = network.testTopology()
+    return {"result": result}
+
+@app.route('/topology/generateTraffic')
+def generateTopology():
+    network.generateVirtualTraffic()
     return {}
 
 if __name__ == "__main__":
