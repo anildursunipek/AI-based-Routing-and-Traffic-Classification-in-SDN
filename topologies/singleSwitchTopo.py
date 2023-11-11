@@ -31,7 +31,7 @@ def run(mySwitch2:Switch):
 
     net.start()
     globalNet = net
-    status = True;
+    status = True
     startDate = datetime.now()
     print(globalNet.hosts)
 
