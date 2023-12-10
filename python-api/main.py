@@ -7,14 +7,6 @@ import mapperImpl
 
 app = Flask("__name__")
 
-@app.route('/topology/linear/<numberOfSwitches>/<hostsPerSwitch>')
-def startLinearTopology(numberOfSwitches: int, hostsPerSwitch: int):
-    topo = network.buildLinearTopo(int(numberOfSwitches), int(hostsPerSwitch))
-    network.initalizeTopology(topo = topo)
-    return {
-        "status" : 200
-    }
-
 @app.route('/topology/startCustom')
 def startCustomTopology():
     topo = network.buildCustomTopo()
@@ -29,6 +21,16 @@ def stopTopology():
     return {
         "status": 200
     }
+
+@app.route('/topology/links', methods=['GET'])
+def getLinks():
+    result = network.getLinks()
+    response = jsonify({
+        "result": result,
+        "status":200,
+        "message":"success"
+    })
+    return response
 
 @app.route('/topology/hosts', methods=['GET'])
 def getHosts():
@@ -54,11 +56,17 @@ def getSwitches():
 def testTopology():
     result = network.testTopology()
     return {"result": result}
-
+ 
 @app.route('/topology/generateTraffic')
 def generateTopology():
     network.generateVirtualTraffic()
-    return {}
+
+@app.route('/topology/test/pingAll')
+def pingAllTest():
+    network.pingAllTest()
+    return {
+        "status": 200
+    }
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -1,19 +1,7 @@
-from mininet.net import Mininet
-from mininet.node import OVSKernelSwitch
-from mininet.topo import LinearTopo, Topo
-from mininet.node import RemoteController, CPULimitedHost
-from mininet.link import TCLink
-import random
+from mininet.topo import Topo
 
-#Global Veriables
-global net
-net:Mininet = None
-
-class CustomTopo(Topo):
-    def build( self, **params ):
-        #hosts = [ self.addHost('h%s' % h) for h in range(1,numberOfHostes + 1)]
-        #switches = [ self.addSwitch('s%s' % s) for s in range(1,numberOfSwitches + 1)]
-
+class ComplexTopo(Topo):
+    def build(self):
         #hosts
         h1 = self.addHost('h1')
         h2 = self.addHost('h2')
@@ -58,7 +46,7 @@ class CustomTopo(Topo):
         s22 = self.addSwitch('s22')
 
         #Links
-        linkopts1 = dict(delay='1ms', bw=100, loss=1, max_queue_size=1000, use_htb=True) # between switch and host
+        linkopts1 = dict(bw=100, delay='1ms', loss=1, max_queue_size=1000, use_htb=True) # between switch and host
         linkopts2 = dict(bw=1000, delay='1ms', loss=1, use_htb=True) # between 2 switches
 
         # swith to switch
@@ -110,64 +98,10 @@ class CustomTopo(Topo):
         self.addLink(s22, h16, **linkopts1)
         self.addLink(s22, h17, **linkopts1)
 
-def buildCustomTopo():
-    topo = CustomTopo()
-    return topo
+topos = {'complexTopo' : (lambda: ComplexTopo())}
 
-def initalizeTopology(topo):
-    global net
-    net = Mininet(topo=topo, build=False, switch=OVSKernelSwitch, link=TCLink, autoStaticArp=True, cleanup=True, autoSetMacs=True)
-    
-    # Adding floodlight controller here
-    remoteControllerIp = "127.0.0.1"
-    net.addController("c1", controller=RemoteController, ip=remoteControllerIp, port=6653)
-    net.build()
-    net.start()
-
-def pingAllTest():
-    global nets
-    print("PING ALL RESULT") 
-    net.pingAll()
-
-def testTopology():
-    global net
-    h1 = net.get('h1')
-    h16 = net.get('h16')
-    result = net.iperf((h1, h16), l4Type='UDP')
-    return result
-
-def generateVirtualTraffic():
-    global net
-    hosts = net.hosts
-    hostCount = len(hosts)
-    print("Testing------>" , " hostCount: " , hostCount , " type: " , type(hostCount))
-    # print(len(hosts))
-
-    senders = random.sample(hosts, int(hostCount / 2))
-    receivers = [host for host in hosts if host not in senders]
-    # print(senders)
-    # print(receivers)
-
-    for i in range(int(hostCount / 2)):
-        sender, receiver = senders[i], receivers[i]
-        result = net.iperf((sender, receiver), l4Type='UDP')
-        print("it worked")
-        print(result)
-
-def stopTopology():
-    global net
-    net.stop()
-    net = None
-
-def getHosts():
-    global net
-    return net.hosts
-
-def getLinks():
-    global net
-    return net.links
+"""
+sudo mn --custom topologies/complexTopo.py --topo complexTopo --controller=remote,ip=127.0.0.1,port=6653 --switch ovsk,protocols=OpenFlow13
+"""
 
 
-def getSwitches():
-    global net
-    return net.switches

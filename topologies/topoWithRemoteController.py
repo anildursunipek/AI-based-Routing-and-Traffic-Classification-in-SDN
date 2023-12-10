@@ -1,10 +1,6 @@
 #!/usr/bin/python
-import json
 
-# import httplib
 import os
-import subprocess
-import time
 from mininet.cli import CLI
 from mininet.log import setLogLevel, info
 from mininet.net import Mininet
@@ -44,31 +40,6 @@ class LinearTopo(Topo):
         self.addLink( hosts[ 0 ], switches[ 0 ] )
         for host, switch in zip( hosts[ 1: ], switches ):
             self.addLink( host, switch )
-
-
-# def getControllerIP():
-#     guest_ip = subprocess.check_output("/sbin/ifconfig eth1 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'",
-#                                        shell=True)
-#     split_ip = guest_ip.split('.')
-#     split_ip[3] = '1'
-#     return '.'.join(split_ip)
-
-
-# def rest_call(path, data, action):
-#     headers = {
-#         'Content-type': 'application/json',
-#         'Accept'      : 'application/json',
-#     }
-#     body = json.dumps(data)
-
-#     conn = httplib.HTTPConnection("127.0.0.1", 8080)
-#     conn.request(action, path, body, headers)
-#     response = conn.getresponse()
-
-#     ret = (response.status, response.reason, response.read())
-#     conn.close()
-#     return ret
-
 
 def startNetworkWithLinearTopo( hostCount ):
     global net

@@ -55,5 +55,5 @@ if __name__ == "__main__":
     compressed_video_path = 'original-rec.mp4'
 
     average_mse_value, average_psnr_value = calculate_mse_and_psnr(original_video_path, compressed_video_path)
-    print(f"Ortalama MSE Değeri: {average_mse_value}")
-    print(f"Ortalama PSNR Değeri: {average_psnr_value}")
+    print(f"Avarage MSE: {average_mse_value}")
+    print(f"Avarage PSNR: {average_psnr_value}")
