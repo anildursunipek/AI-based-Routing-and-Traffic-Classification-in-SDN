@@ -1,11 +1,6 @@
 #!/usr/bin/python
 
-from mininet.cli import CLI
-from mininet.log import setLogLevel, info
-from mininet.net import Mininet
-from mininet.node import RemoteController, OVSKernelSwitch
 from mininet.topo import Topo
-from mininet.link import TCLink
 
 class NsfnetTopo(Topo):
     """
@@ -13,20 +8,20 @@ class NsfnetTopo(Topo):
     """
     def build(self, **params):
         # Hosts
-        h0 = self.addHost('h0', ip='10.0.0.1/24')
-        h1 = self.addHost('h1', ip='10.0.0.2/24')
-        h2 = self.addHost('h2', ip='10.0.0.3/24')
-        h3 = self.addHost('h3', ip='10.0.0.4/24')
-        h4 = self.addHost('h4', ip='10.0.0.5/24')
-        h5 = self.addHost('h5', ip='10.0.0.6/24')
-        h6 = self.addHost('h6', ip='10.0.0.7/24')
-        h7 = self.addHost('h7', ip='10.0.0.8/24')
-        h8 = self.addHost('h8', ip='10.0.0.9/24')
-        h9 = self.addHost('h9', ip='10.0.0.10/24')
-        h10 = self.addHost('h10', ip='10.0.0.11/24')
-        h11 = self.addHost('h11', ip='10.0.0.12/24')
-        h12 = self.addHost('h12', ip='10.0.0.13/24')
-        h13 = self.addHost('h13', ip='10.0.0.14/24')
+        h0 = self.addHost('h0', ip='10.0.0.1')
+        h1 = self.addHost('h1', ip='10.0.0.2')
+        h2 = self.addHost('h2', ip='10.0.0.3')
+        h3 = self.addHost('h3', ip='10.0.0.4')
+        h4 = self.addHost('h4', ip='10.0.0.5')
+        h5 = self.addHost('h5', ip='10.0.0.6')
+        h6 = self.addHost('h6', ip='10.0.0.7')
+        h7 = self.addHost('h7', ip='10.0.0.8')
+        h8 = self.addHost('h8', ip='10.0.0.9')
+        h9 = self.addHost('h9', ip='10.0.0.10')
+        h10 = self.addHost('h10', ip='10.0.0.11')
+        h11 = self.addHost('h11', ip='10.0.0.12')
+        h12 = self.addHost('h12', ip='10.0.0.13')
+        h13 = self.addHost('h13', ip='10.0.0.14')
 
         # Switches
         s0 = self.addSwitch('s0', dpid='00:00:00:00:00:00:00:01', protocols="OpenFlow13")
