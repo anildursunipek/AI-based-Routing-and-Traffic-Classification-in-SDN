@@ -40,8 +40,9 @@ pusher = StaticEntryPusher('127.0.0.1')
 #     "name": "flow_s0_s3",
 #     "cookie": "0",
 #     "priority":"32768",
-#     "eth_type" : "0x0800" ,
-#     "ipv4_dst": "10.0.0.10/24",
+#     "eth_type" : "0x0800",
+#     "ipv4_src": "10.0.0.1/32",
+#     "ipv4_dst": "10.0.0.10/32",
 #     "in_port":"4",
 #     "active":"true",
 #     "actions":"output=3"
@@ -53,7 +54,8 @@ pusher = StaticEntryPusher('127.0.0.1')
 #     "cookie": "0",
 #     "priority":"32768",
 #     "eth_type" : "0x0800" ,
-#     "ipv4_dst": "10.0.0.10/24",
+#     "ipv4_src": "10.0.0.1/32",
+#     "ipv4_dst": "10.0.0.10/32",
 #     "in_port":"1",
 #     "active":"true",
 #     "actions":"output=2"
@@ -65,7 +67,8 @@ pusher = StaticEntryPusher('127.0.0.1')
 #     "cookie": "0",
 #     "priority":"32768",
 #     "eth_type" : "0x0800" ,
-#     "ipv4_dst": "10.0.0.10/24",
+#     "ipv4_src": "10.0.0.1/32",
+#     "ipv4_dst": "10.0.0.10/32",
 #     "in_port":"1",
 #     "active":"true",
 #     "actions":"output=3"
@@ -77,7 +80,8 @@ pusher = StaticEntryPusher('127.0.0.1')
 #     "cookie": "0",
 #     "priority":"32768",
 #     "eth_type" : "0x0800" ,
-#     "ipv4_dst": "10.0.0.10/24",
+#     "ipv4_src": "10.0.0.1/32",
+#     "ipv4_dst": "10.0.0.10/32",
 #     "in_port":"1",
 #     "active":"true",
 #     "actions":"output=2"
@@ -85,11 +89,12 @@ pusher = StaticEntryPusher('127.0.0.1')
 
 # flow_s7_s10 = {
 #     "switch": "00:00:00:00:00:00:00:08",
-#     "name": "flow_s6_s7",
+#     "name": "flow_s7_s10",
 #     "cookie": "0",
 #     "priority":"32768",
 #     "eth_type" : "0x0800" ,
-#     "ipv4_dst": "10.0.0.10/24",
+#     "ipv4_src": "10.0.0.1/32",
+#     "ipv4_dst": "10.0.0.10/32",
 #     "in_port":"2",
 #     "active":"true",
 #     "actions":"output=3"
@@ -98,11 +103,12 @@ pusher = StaticEntryPusher('127.0.0.1')
 
 # flow_s10_s9 = {
 #     "switch": "00:00:00:00:00:00:00:11",
-#     "name": "flow_s6_s7",
+#     "name": "flow_s10_s9",
 #     "cookie": "0",
 #     "priority":"32768",
 #     "eth_type" : "0x0800" ,
-#     "ipv4_dst": "10.0.0.10/24",
+#     "ipv4_src": "10.0.0.1/32",
+#     "ipv4_dst": "10.0.0.10/32",
 #     "in_port":"1",
 #     "active":"true",
 #     "actions":"output=2"
@@ -110,11 +116,12 @@ pusher = StaticEntryPusher('127.0.0.1')
 
 # flow_s9_h9 = {
 #     "switch": "00:00:00:00:00:00:00:10",
-#     "name": "flow_s6_s7",
+#     "name": "flow_s9_h9",
 #     "cookie": "0",
 #     "priority":"32768",
 #     "eth_type" : "0x0800" ,
-#     "ipv4_dst": "10.0.0.10/24",
+#     "ipv4_src": "10.0.0.1/32",
+#     "ipv4_dst": "10.0.0.10/32",
 #     "in_port":"2",
 #     "active":"true",
 #     "actions":"output=4"
@@ -125,9 +132,12 @@ flow_s0_s3 = {
     "name": "flow_s0_s3",
     "cookie": "0",
     "priority":"32768",
-    "in_port":"4",
+    "eth_type" : "0x0800" ,
+    "ipv4_src": "10.0.0.1/32",
+    "ipv4_dst": "10.0.0.10/32",
+    "in_port":"3",
     "active":"true",
-    "actions":"output=3"
+    "actions":"output=1"
 }
 
 flow_s3_s4 = {
@@ -135,6 +145,9 @@ flow_s3_s4 = {
     "name": "flow_s3_s4",
     "cookie": "0",
     "priority":"32768",
+    "eth_type" : "0x0800" ,
+    "ipv4_src": "10.0.0.1/32",
+    "ipv4_dst": "10.0.0.10/32",
     "in_port":"1",
     "active":"true",
     "actions":"output=2"
@@ -145,9 +158,12 @@ flow_s4_s6 = {
     "name": "flow_s4_s6",
     "cookie": "0",
     "priority":"32768",
+    "eth_type" : "0x0800" ,
+    "ipv4_src": "10.0.0.1/32",
+    "ipv4_dst": "10.0.0.10/32",
     "in_port":"1",
     "active":"true",
-    "actions":"output=3"
+    "actions":"output=2"
 }
 
 flow_s6_s7 = {
@@ -155,6 +171,9 @@ flow_s6_s7 = {
     "name": "flow_s6_s7",
     "cookie": "0",
     "priority":"32768",
+    "eth_type" : "0x0800" ,
+    "ipv4_src": "10.0.0.1/32",
+    "ipv4_dst": "10.0.0.10/32",
     "in_port":"1",
     "active":"true",
     "actions":"output=2"
@@ -162,20 +181,26 @@ flow_s6_s7 = {
 
 flow_s7_s10 = {
     "switch": "00:00:00:00:00:00:00:08",
-    "name": "flow_s6_s7",
+    "name": "flow_s7_s10",
     "cookie": "0",
     "priority":"32768",
-    "in_port":"2",
+    "eth_type" : "0x0800" ,
+    "ipv4_src": "10.0.0.1/32",
+    "ipv4_dst": "10.0.0.10/32",
+    "in_port":"1",
     "active":"true",
-    "actions":"output=3"
+    "actions":"output=2"
 }
 
 
 flow_s10_s9 = {
     "switch": "00:00:00:00:00:00:00:11",
-    "name": "flow_s6_s7",
+    "name": "flow_s10_s9",
     "cookie": "0",
     "priority":"32768",
+    "eth_type" : "0x0800" ,
+    "ipv4_src": "10.0.0.1/32",
+    "ipv4_dst": "10.0.0.10/32",
     "in_port":"1",
     "active":"true",
     "actions":"output=2"
@@ -183,12 +208,15 @@ flow_s10_s9 = {
 
 flow_s9_h9 = {
     "switch": "00:00:00:00:00:00:00:10",
-    "name": "flow_s6_s7",
+    "name": "flow_s9_h9",
     "cookie": "0",
     "priority":"32768",
-    "in_port":"2",
+    "eth_type" : "0x0800" ,
+    "ipv4_src": "10.0.0.1/32",
+    "ipv4_dst": "10.0.0.10/32",
+    "in_port":"1",
     "active":"true",
-    "actions":"output=4"
+    "actions":"output=3"
 }
 
 pusher.set(flow_s0_s3)
