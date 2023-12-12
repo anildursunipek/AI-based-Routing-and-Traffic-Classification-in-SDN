@@ -99,6 +99,9 @@ def startNetwork():
     # Build the network
     net.build()
     net.start()
+    # TEST CODES
+    h0 = net.getNodeByName('h0')
+    print(h0.MAC())
     CLI(net)
     net.stop()
 
