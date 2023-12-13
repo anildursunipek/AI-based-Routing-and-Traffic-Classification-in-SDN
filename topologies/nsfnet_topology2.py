@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+import time
 from mininet.cli import CLI
 from mininet.log import setLogLevel, info
 from mininet.net import Mininet
@@ -99,9 +100,7 @@ def startNetwork():
     # Build the network
     net.build()
     net.start()
-    # TEST CODES
-    h0 = net.getNodeByName('h0')
-    print(h0.MAC())
+    net.pingAll()
     CLI(net)
     net.stop()
 
