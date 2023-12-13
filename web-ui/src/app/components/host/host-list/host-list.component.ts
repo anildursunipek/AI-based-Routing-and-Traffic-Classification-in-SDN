@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Host } from 'src/app/model';
-import { SingleSwitchService } from 'src/app/services/single-switch.service';
+import { TopologyService } from 'src/app/services/topology.service';
 
 @Component({
   selector: 'app-host-list',
@@ -16,12 +16,12 @@ export class HostListComponent implements OnInit {
     
   }
 
-  constructor(private singleSwitchService:SingleSwitchService){
+  constructor(private topologyService:TopologyService){
 
   }
 
   getHosts(){
-    this.singleSwitchService.getHosts().subscribe(res => {
+    this.topologyService.getHosts().subscribe(res => {
       this.hosts = res.result as Host[]
       console.log(this.hosts);
     })

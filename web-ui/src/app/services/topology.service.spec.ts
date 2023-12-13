@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { SingleSwitchService } from './single-switch.service';
+import { TopologyService } from './topology.service';
 
-describe('SingleSwitchService', () => {
-  let service: SingleSwitchService;
+describe('TopologyService', () => {
+  let service: TopologyService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(SingleSwitchService);
+    service = TestBed.inject(TopologyService);
   });
 
   it('should be created', () => {

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Switch } from 'src/app/model';
-import { SingleSwitchService } from 'src/app/services/single-switch.service';
+import { TopologyService } from 'src/app/services/topology.service';
 
 @Component({
   selector: 'app-switch-list',
@@ -16,14 +16,14 @@ export class SwitchListComponent  implements OnInit{
     
   }
 
-  constructor(private singleSwitchService:SingleSwitchService){
+  constructor(private topologyService:TopologyService){
 
   }
 
   getSwitches(){
     console.log("sdçafş");
     
-    this.singleSwitchService.getSwitches().subscribe(res => {
+    this.topologyService.getSwitches().subscribe(res => {
       this.switches = res.result as Switch[]
       console.log(this.switches);
     })

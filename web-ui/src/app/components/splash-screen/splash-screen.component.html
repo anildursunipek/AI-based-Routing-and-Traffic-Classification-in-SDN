@@ -1,5 +1,8 @@
-<div class="container" (click)="closeSplash()">
-    <div class="splash" id="splash"> 
+<div class="container">
+    <div *ngIf="flag" class="splash" (click)="startTopology()">
+        <p-button label="Simülasyon Ortamını Hazırla" [rounded]="true" severity="help"></p-button>
+    </div>
+    <div *ngIf="!flag" class="splash"> 
         <p-progressSpinner id="spinner"></p-progressSpinner>
         <div class="text">PROJE YÜKLENİYOR...</div>
     </div>

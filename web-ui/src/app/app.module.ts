@@ -19,6 +19,8 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { ButtonModule } from 'primeng/button';
 import { HttpClientModule } from  '@angular/common/http';
+import { TrafficGenerateComponent } from './components/traffic-generate/traffic-generate.component';
+import { DynamicTimePipe } from './pipe/dynamic-time.pipe';
 
 @NgModule({
   declarations: [
@@ -28,7 +30,9 @@ import { HttpClientModule } from  '@angular/common/http';
     HostListComponent,
     MenuComponent,
     SwitchListComponent,
-    LinkListComponent
+    LinkListComponent,
+    TrafficGenerateComponent,
+    DynamicTimePipe
   ],
   imports: [
     BrowserModule,

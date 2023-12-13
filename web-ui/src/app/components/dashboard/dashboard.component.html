@@ -1,4 +1,7 @@
 <div class="grid">
+    <div class="col-12 p-fluid" *ngIf="systemStatus">
+        <p-button label="Simülasyonu Durdur" severity="danger" [icon]="stopTopoDisable?'pi-spin pi-spinner':'pi pi-power-off'" (click)="stopTopology()" [disabled]="stopTopoDisable"></p-button>
+    </div>
     <div class="col-4 p-2">
         <div class="mycard">
             <div class="img">
@@ -126,35 +129,6 @@
         </div>
     </div>
 
-    <div class="col-12 text-center">
-        <p-selectButton [options]="paymentOptions" [(ngModel)]="value" (ngModelChange)="selectButtonChanged()" optionLabel="name"
-            optionValue="value"></p-selectButton>
-    </div>
-    <div class="col-12 mt-4" style="border-top: 1px solid #dfd7d7;">
-        <div class="text-center mt-3">
-            Single switch Topo
-        </div>
-        <div class="col-12 grid p-fluid mt-4">
-            <div class="col-5">
-                <label for="">Switch Count</label>
-                <div class="p-field">
-                    <p-inputNumber mode="decimal" inputId="withoutgrouping"  [(ngModel)]="switchInputCount"[useGrouping]="false" [min]="1" [max]="10" [disabled]="switchDisable">
-                    </p-inputNumber>
-                </div>
-            </div>
-            <div class="col-5">
-                <label for="">Host Count</label>
-                <div class="p-field">
-                    <p-inputNumber mode="decimal" inputId="withoutgrouping" [(ngModel)]="hostInputCount" [useGrouping]="false" [min]="1" [max]="50" [disabled]="hostDisable">
-                    </p-inputNumber>
-                </div>
-            </div>
-            <div class="col-2 p-fluid">
-                <label for=""> </label>
-                <p-button label="START" (click)="startSingleSwitchTopo()" [raised]="true" severity="success"></p-button>
-            </div>
-        </div>
-    </div>
     <div class="col-12" style="width: 100%; height: 1000px;">
         <div class="tooltip"></div>
     </div>

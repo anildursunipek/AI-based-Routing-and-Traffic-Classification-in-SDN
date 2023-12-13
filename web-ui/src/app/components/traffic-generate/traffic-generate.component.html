@@ -1,0 +1,12 @@
+<div class="p-fluid">
+    <p-button label="Trafiği Başlat" severity="success" [icon]="trafficDisable?'pi-spin pi-spinner':'pi pi-sitemap'" (click)="startTraffic()" [disabled]="trafficDisable"></p-button>
+</div>
+<div class="grid mt-3" *ngFor="let traffic of traffics">
+    <div class="col-3 flex justify-content-center align-items-center" style="font-size: 25px; font-weight: bold;">{{traffic.sender}} ({{traffic.senderIP}})</div>
+    <div class="col-6 text-center">
+        <div>{{startAndNowDate(traffic.second, traffic.startDate)}}</div>
+        <img src="https://support.elitegamer.com/hc/article_attachments/360085506831/image10.gif" alt=""
+            style="width: 100%; height: 300px; clip: rect(0px, 200px, 200px, 0px);">
+    </div>
+    <div class="col-3 flex justify-content-center align-items-center" style="font-size: 25px; font-weight: bold;">{{traffic.receiver}} ({{traffic.receiverIP}})</div>
+</div>

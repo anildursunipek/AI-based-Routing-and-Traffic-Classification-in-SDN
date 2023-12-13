@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { TopologyService } from 'src/app/services/topology.service';
 
 @Component({
   selector: 'app-splash-screen',
@@ -8,21 +9,19 @@ import { Router } from '@angular/router';
 })
 export class SplashScreenComponent {
 
+  flag:boolean = true
+
   ngOnInit(): void {
   }
 
-  constructor(private router: Router) {
+  constructor(private router: Router, private topologyService:TopologyService) {
 
   }
 
-  closeSplash() {
-    var splash = document.getElementById('splash')!;
-    splash.classList.add('hidden');
-  
-    // Belirlediğin animasyon süresi kadar bekleyip sonra splash'ı tamamen gizle
-    setTimeout(() => {
-      splash.style.display = 'none';
+  startTopology(){
+    this.flag = false
+    this.topologyService.topologyStart().subscribe(res => {
       this.router.navigate(['/dashboard']);
-    }, 3000);
+    })
   }
 }
