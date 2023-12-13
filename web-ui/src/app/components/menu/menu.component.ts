@@ -30,11 +30,12 @@ export class MenuComponent implements OnInit{
           {
               label: 'Links',
               icon: 'pi pi-compass',
-              routerLink:"/link/list"
+              routerLink:"link/list"
           },
           {
               label: 'Topology',
-              icon: 'pi pi-slack'
+              icon: 'pi pi-slack',
+              routerLink: "topology/graph"
           },
           {
               label: 'Firewall',

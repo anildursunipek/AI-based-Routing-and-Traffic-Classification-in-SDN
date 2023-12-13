@@ -6,6 +6,7 @@ import { HostListComponent } from './components/host/host-list/host-list.compone
 import { SwitchListComponent } from './components/switch/switch-list/switch-list.component';
 import { LinkListComponent } from './components/link/link-list/link-list.component';
 import { TrafficGenerateComponent } from './components/traffic-generate/traffic-generate.component';
+import { TopologyGraphComponent } from './components/topology-graph/topology-graph.component';
 
 const routes: Routes = [
   {path: '', component: SplashScreenComponent},
@@ -14,6 +15,7 @@ const routes: Routes = [
   {path: 'switch/list', component: SwitchListComponent},
   {path: 'link/list', component: LinkListComponent},
   {path: 'traffic/generate', component: TrafficGenerateComponent},
+  {path: 'topology/graph', component: TopologyGraphComponent},
 ];
 
 @NgModule({

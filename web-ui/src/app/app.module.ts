@@ -21,6 +21,7 @@ import { ButtonModule } from 'primeng/button';
 import { HttpClientModule } from  '@angular/common/http';
 import { TrafficGenerateComponent } from './components/traffic-generate/traffic-generate.component';
 import { DynamicTimePipe } from './pipe/dynamic-time.pipe';
+import { TopologyGraphComponent } from './components/topology-graph/topology-graph.component';
 
 @NgModule({
   declarations: [
@@ -32,7 +33,8 @@ import { DynamicTimePipe } from './pipe/dynamic-time.pipe';
     SwitchListComponent,
     LinkListComponent,
     TrafficGenerateComponent,
-    DynamicTimePipe
+    DynamicTimePipe,
+    TopologyGraphComponent
   ],
   imports: [
     BrowserModule,
