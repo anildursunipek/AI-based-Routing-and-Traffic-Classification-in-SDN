@@ -4,11 +4,16 @@ from mininet.log import setLogLevel, info
 from mininet.topo import Topo
 from mininet.node import RemoteController, CPULimitedHost
 from mininet.link import TCLink
-import random
+from datetime import datetime
+import threading
+import time
+import json
 
 #Global Veriables
 global net
-net:Mininet = None
+trafficThreadList = []
+systemStatus = False
+startDate = None
 
 class NsfnetTopo(Topo):
     def build( self, **params ):
@@ -97,6 +102,9 @@ def buildCustomTopo():
 
 def initalizeTopology(topo):
     global net
+    global systemStatus
+    global startDate
+
     net = Mininet(topo=topo, link=TCLink, build=False, switch=OVSKernelSwitch, autoSetMacs=True, waitConnected=True)
     
     # Adding floodlight controller here
@@ -107,41 +115,127 @@ def initalizeTopology(topo):
     # Build the network
     net.build()
     net.start()
+    systemStatus = True
+    startDate = datetime.now()
+    net.pingAll()
 
 def pingAllTest():
     global net
     info("PING ALL RESULT") 
     net.pingAll()
 
+def writeJsonFile(result):
+    existing_json_file = "traffic_result.json"
+
+    with open(existing_json_file, "r") as file:
+        existing_data = json.load(file)
+
+    existing_data["results"].append(result["end"]["sum"])
+
+    updated_json_data = json.dumps(existing_data, indent=2)
+
+    with open(existing_json_file, "w") as file:
+        file.write(updated_json_data)
+
+def hostCommend(host, cmdText, receiver=None):
+    h = net.get(host)
+    result = h.cmd(cmdText)
+    print(f"***********{host}***********")
+    if receiver != None:
+        result = json.loads(result)
+        writeJsonFile(result)
+        print(result)
+        list(filter(lambda obj: obj["receiver"] == receiver and obj["sender"] == host , trafficThreadList))[0]["result"] = result
+
 def testTopology():
     global net
-    h1 = net.get('h1')
-    h16 = net.get('h16')
-    result = net.iperf((h1, h16), l4Type='UDP')
-    return result
+    print("H1 BAŞLIYOR")
+    print("VIDEO GELIYOR*************")
 
-def generateVirtualTraffic():
-    global net
-    hosts = net.hosts
-    hostCount = len(hosts)
-    print("Testing------>" , " hostCount: " , hostCount , " type: " , type(hostCount))
-    # print(len(hosts))
+    thread1 = threading.Thread(target=hostCommend, args=("h1" ,"ffplay -i udp://10.0.0.2:1234"))
+    thread2 = threading.Thread(target=hostCommend, args=("h2", "ffmpeg -re -i /home/batuhan/deneme/yuksek/video.ts -c copy -f mpegts udp://10.0.0.2:1234"))
 
-    senders = random.sample(hosts, int(hostCount / 2))
-    receivers = [host for host in hosts if host not in senders]
-    # print(senders)
-    # print(receivers)
+    thread1.start()
+    time.sleep(2)
+    thread2.start()
 
-    for i in range(int(hostCount / 2)):
-        sender, receiver = senders[i], receivers[i]
-        result = net.iperf((sender, receiver), l4Type='UDP')
-        print("it worked")
-        print(result)
+    thread1.join()
+    thread2.join()
+
+    return "result"
+
+def generateTraffic():
+    # matriste [0][0] receiver [1][0] sender olmak üzerinde aralarında trafik oluşturmaktadır
+    trafficHosts = [
+        ["h1","h5","h7"], # receiver
+        ["h2","h3","h9"], # sender
+        ]
+    
+    tSecond = 15
+    bandWidth = 30
+    port = 5555
+    for i in range(len(trafficHosts[0])):
+        receiver = trafficHosts[0][i]
+        sender = trafficHosts[1][i]
+
+        receiverIP = "10.0.0."+ str(int(receiver[receiver.index('h') + 1:])+1) # hostun ipsini veriyor örneğin h3 hostunun ipsi 10.0.0.4
+        senderIP = "10.0.0."+ str(int(sender[sender.index('h') + 1:])+1) # hostun ipsini veriyor örneğin h3 hostunun ipsi 10.0.0.4
+        receiverThread = threading.Thread(target=hostCommend, args=(receiver ,f"iperf3 -s -p {port} -1 &"))
+        senderThread = threading.Thread(target=hostCommend, args=(sender ,f"iperf3 -c {receiverIP} -u -b {bandWidth}G -p {port} -t {tSecond} -J ", receiver))
+
+        trafficThreadList.append({"receiverThread":receiverThread,
+                                   "senderThread":senderThread,
+                                   "receiver":receiver,
+                                   "sender":sender,
+                                   "bandWidth":bandWidth,
+                                   "second":tSecond,
+                                   "receiverIP":receiverIP,
+                                   "senderIP":senderIP,
+                                   "startDate":datetime.now(),
+                                   "result":None})
+    
+    for i in trafficThreadList:
+        i["receiverThread"].start()
+
+    time.sleep(2)
+
+    for i in trafficThreadList:
+        time.sleep(2)
+        i["senderThread"].start()
+    
+    time.sleep(tSecond+5)
+
+    for i in range(len(trafficHosts)):
+        trafficThreadList[i]["receiverThread"].join()
+        trafficThreadList[i]["senderThread"].join()
+
+def getTraffic():
+    new_list = []
+    for trafficThreadListItem in trafficThreadList:
+        new_item = {
+            "receiver": trafficThreadListItem["receiver"],
+            "sender": trafficThreadListItem["sender"],
+            "bandWidth": trafficThreadListItem["bandWidth"],
+            "second": trafficThreadListItem["second"],
+            "receiverIP": trafficThreadListItem["receiverIP"],
+            "senderIP": trafficThreadListItem["senderIP"],
+            "startDate": trafficThreadListItem["startDate"],
+            "result":trafficThreadListItem["result"]
+        }
+        new_list.append(new_item)
+
+    return new_list
 
 def stopTopology():
     global net
+    global systemStatus
+    global startDate
+    global trafficThreadList
     net.stop()
     net = None
+    trafficThreadList = []
+    systemStatus = False
+    startDate = None
 
 def getHosts():
     global net
