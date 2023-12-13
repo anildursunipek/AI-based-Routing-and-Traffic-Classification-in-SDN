@@ -1,0 +1,189 @@
+{
+    "results": [
+      {
+        "start": 0,
+        "end": 15.000011,
+        "seconds": 15.000011,
+        "bytes": 9965518848,
+        "bits_per_second": 5314939000.0,
+        "jitter_ms": 0,
+        "lost_packets": 0,
+        "packets": 0,
+        "lost_percent": 0
+      },
+      {
+        "start": 0,
+        "end": 15.000017,
+        "seconds": 15.000017,
+        "bytes": 9566625792,
+        "bits_per_second": 5102195000.0,
+        "jitter_ms": 0,
+        "lost_packets": 0,
+        "packets": 0,
+        "lost_percent": 0
+      },
+      {
+        "start": {
+          "connected": [],
+          "version": "iperf 3.1.3",
+          "system_info": "Linux ubuntu 5.4.0-150-generic #167~18.04.1-Ubuntu SMP Wed May 24 00:51:42 UTC 2023 x86_64"
+        },
+        "intervals": [],
+        "end": {},
+        "error": "error - unable to connect to server: No route to host"
+      },
+      {
+        "start": {
+          "connected": [],
+          "version": "iperf 3.1.3",
+          "system_info": "Linux ubuntu 5.4.0-150-generic #167~18.04.1-Ubuntu SMP Wed May 24 00:51:42 UTC 2023 x86_64"
+        },
+        "intervals": [],
+        "end": {},
+        "error": "error - unable to connect to server: No route to host"
+      },
+      {
+        "start": 0,
+        "end": 15.000014,
+        "seconds": 15.000014,
+        "bytes": 10437885952,
+        "bits_per_second": 5566867000.0,
+        "jitter_ms": 96.71,
+        "lost_packets": 1023468,
+        "packets": 1023471,
+        "lost_percent": 99.999707
+      },
+      {
+        "start": 0,
+        "end": 15.0001,
+        "seconds": 15.0001,
+        "bytes": 9803038720,
+        "bits_per_second": 5228252000.0,
+        "jitter_ms": 0,
+        "lost_packets": 0,
+        "packets": 0,
+        "lost_percent": 0
+      },
+      {
+        "start": 0,
+        "end": 15.000014,
+        "seconds": 15.000014,
+        "bytes": 8636366848,
+        "bits_per_second": 4606058000.0,
+        "jitter_ms": 0,
+        "lost_packets": 0,
+        "packets": 0,
+        "lost_percent": 0
+      },
+      {
+        "start": 0,
+        "end": 15.000182,
+        "seconds": 15.000182,
+        "bytes": 6797369344,
+        "bits_per_second": 3625220000.0,
+        "jitter_ms": 0,
+        "lost_packets": 0,
+        "packets": 0,
+        "lost_percent": 0
+      },
+      {
+        "start": 0,
+        "end": 15.000022,
+        "seconds": 15.000022,
+        "bytes": 6979190784,
+        "bits_per_second": 3722230000.0,
+        "jitter_ms": 0,
+        "lost_packets": 0,
+        "packets": 0,
+        "lost_percent": 0
+      },
+      {
+        "start": 0,
+        "end": 15.002135,
+        "seconds": 15.002135,
+        "bytes": 7265386496,
+        "bits_per_second": 3874321000.0,
+        "jitter_ms": 0,
+        "lost_packets": 0,
+        "packets": 0,
+        "lost_percent": 0
+      },
+      {
+        "start": 0,
+        "end": 15.002347,
+        "seconds": 15.002347,
+        "bytes": 8020582400,
+        "bits_per_second": 4276975000.0,
+        "jitter_ms": 0,
+        "lost_packets": 0,
+        "packets": 0,
+        "lost_percent": 0
+      },
+      {
+        "start": 0,
+        "end": 15.000026,
+        "seconds": 15.000026,
+        "bytes": 8317984768,
+        "bits_per_second": 4436251000.0,
+        "jitter_ms": 0,
+        "lost_packets": 0,
+        "packets": 0,
+        "lost_percent": 0
+      },
+      {
+        "start": 0,
+        "end": 15.000014,
+        "seconds": 15.000014,
+        "bytes": 11332583424,
+        "bits_per_second": 6044039000.0,
+        "jitter_ms": 0,
+        "lost_packets": 0,
+        "packets": 0,
+        "lost_percent": 0
+      },
+      {
+        "start": 0,
+        "end": 15.000012,
+        "seconds": 15.000012,
+        "bytes": 9825787904,
+        "bits_per_second": 5240416000.0,
+        "jitter_ms": 0,
+        "lost_packets": 0,
+        "packets": 0,
+        "lost_percent": 0
+      },
+      {
+        "start": 0,
+        "end": 15.006422,
+        "seconds": 15.006422,
+        "bytes": 8957321216,
+        "bits_per_second": 4775194000.0,
+        "jitter_ms": 0,
+        "lost_packets": 0,
+        "packets": 0,
+        "lost_percent": 0
+      },
+      {
+        "start": 0,
+        "end": 15.000016,
+        "seconds": 15.000016,
+        "bytes": 8831082496,
+        "bits_per_second": 4709906000.0,
+        "jitter_ms": 0,
+        "lost_packets": 0,
+        "packets": 0,
+        "lost_percent": 0
+      },
+      {
+        "start": 0,
+        "end": 15.000021,
+        "seconds": 15.000021,
+        "bytes": 8409948160,
+        "bits_per_second": 4485299000.0,
+        "jitter_ms": 0,
+        "lost_packets": 0,
+        "packets": 0,
+        "lost_percent": 0
+      }
+    ]
+  }
