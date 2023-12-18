@@ -1,7 +1,8 @@
 #!/usr/bin/python
 
-from ast import List
-import time
+import sys
+sys.path.insert(0, "/home/anil/Desktop/sdn-based-device-management-application/python-api/controller")
+from time import sleep
 from mininet.cli import CLI
 from mininet.log import setLogLevel, info
 from mininet.net import Mininet
@@ -12,6 +13,10 @@ import json
 import pingparsing
 import threading
 from threading import Thread
+import floodlightRestApi
+
+activeThreadList = {}
+activeThreadCount = 0
 
 class NsfnetTopo(Topo):
     """
@@ -19,7 +24,7 @@ class NsfnetTopo(Topo):
     """
     def build( self, **params ):
         # Hosts
-        hostCount = 12
+        hostCount = 8
         h0 = self.addHost('h0', ip='10.0.0.1', cpu=0.8/hostCount)
         # h1 = self.addHost('h1', ip='10.0.0.2', cpu=0.8/hostCount)
         # h2 = self.addHost('h2', ip='10.0.0.3', cpu=0.8/hostCount)
@@ -115,33 +120,116 @@ class NsfnetTopo(Topo):
         # self.addLink(s8, h20, **linkopts1)
         # self.addLink(s8, h21, **linkopts1)
         
-
-        
-
-        
 def startNetwork():
     global net
     net = Mininet(topo=NsfnetTopo(), link=TCLink, build=False, switch=OVSKernelSwitch, autoSetMacs=True, waitConnected=True)
 
     remote_ip = "127.0.0.1"
-    info('** Adding Floodlight Controller\n')
+    info('[INFO]****** Adding Floodlight Controller *****\n')
     net.addController('c1', controller=RemoteController, host=CPULimitedHost, ip=remote_ip, port=6653, protocols="OpenFlow13")
 
     # Build the network
+    info('[INFO]****** Building Network *****\n')
     net.build()
+    info('[INFO]****** Starting Network *****\n')
     net.start()
-    time.sleep(2)
+    sleep(2) # time.sleep
+
+    # Configure controller
+    info('[INFO]****** Configuring Controller *****\n')
+    floodlightRestApi.setRoutingMetric("hopcount")
+    floodlightRestApi.enableSwitchStats()
+
+    info('[INFO]****** Testing Connectivity Between Hosts *****\n')
     net.pingAll()
-    getPingStats("h0", "h9")
-    getIperfTcpStats("h0", "h9")
-    CLI(net)
-    net.stop()
+
+    info('[INFO]****** Setting Path Between 2 Hosts *****\n')
+    sourceNode, destNode = net.getNodeByName("h0"), net.getNodeByName("h9")
+    src_host_mac = sourceNode.MAC()
+    src_host_ipv4 = sourceNode.IP()
+    dst_host_mac = destNode.MAC()
+    dst_host_ipv4 = destNode.IP()
+    num_paths = 3
+    path_index = 0
+    floodlightRestApi.pathPusher(src_host_mac, src_host_ipv4, dst_host_mac, dst_host_ipv4, num_paths, path_index)
+
+
+    # Start traffic
+    # 1 connection --> Low traffic
+    # 2 connection --> Normal traffic
+    # 3 connection --> High traffic
+
+    info(f'[INFO]****** Active thread count: {threading.active_count()}\n')
+
+    info('[INFO]****** Generating artificial traffic *****\n')
+
+    # low traffic
+    # generateTraffic(sender="h8", receiver="h3", getStats=False, bandWidth="3500K")
+
+    # normal traffic
+    # generateTraffic(sender="h8", receiver="h3", getStats=False, bandWidth="3050K")
+    # generateTraffic(sender="h16", receiver="h14", getStats=False, bandWidth="3050K")
+
+    # high traffic
+    generateTraffic(sender="h8", receiver="h3", getStats=False, bandWidth="100M")
+    generateTraffic(sender="h16", receiver="h14", getStats=False, bandWidth="100M")
+    generateTraffic(sender="h17", receiver="h15", getStats=False, bandWidth="100M")
+
+    
+    sleep(15) # time.sleep
+    info(f'[INFO]****** Active thread count: {threading.active_count()}\n')
+
+    # Test the network
+    info(f'[INFO]****** Testing The Network Performance *****\n')
+
+    # Ping stats
+    info(f'[INFO]****** Ping Stats *****\n')
+    avgRTT, packetLoss = getPingStats("h0", "h9")
+    print(f"""*** Average RTT: {avgRTT}\nPacket Loss: {packetLoss}""")
+
+    # Iperf tcp stats
+    info(f'[INFO]****** Iperf TCP Stats *****\n')
+    iperfResult = generateTraffic(sender = "h9", receiver = "h0", getStats = True, bandWidth="0")
+    print("*** Iperf TCP Result: ", iperfResult)
+
+    # Start Video Stream
+    startStream(sender = "h9", receiver = "h0")
+
+    # CLI(net)
+    info(f'[INFO]****** Active thread count: {threading.active_count()}\n')
+    # for thread in activeThreadList.values():
+    #     thread.join()
+
+    sys.exit()
+    # net.stop()
+
+def startStream(sender:str, receiver:str):
+    senderNode, receiverNode = net.getNodeByName(sender), net.getNodeByName(receiver)
+    port = "1234"
+    videoSource = "/home/anil/Desktop/test/1080.ts"
+    receiverUrl = f"udp://{receiverNode.IP()}:{port}"
+
+    senderCommand = f"ffmpeg -re -i {videoSource} -c copy -f mpegts {receiverUrl}"
+    receiverCommand = f"ffplay -i {receiverUrl}"
+
+    senderThread = HostCommand(senderNode, senderCommand)
+    receiverThread = HostCommand(receiverNode, receiverCommand) 
+    senderThread.daemon = True
+    receiverThread.daemon = True
+
+    receiverThread.start()
+    sleep(1) # time.sleep
+    senderThread.start()
+
+    receiverThread.join()
+    senderThread.join()
 
 def getPingStats(sender: str, receiver: str) -> [float, float]:
     senderNode, receiverNode = net.getNodeByName(sender), net.getNodeByName(receiver)
     receiverIpv4 = receiverNode.IP()
     print("Receiver ipv4 -> ", receiverIpv4)
-    command = f"ping {receiverIpv4} -c 1000 -f"
+    packetCount = "500"
+    command = f"ping {receiverIpv4} -c {packetCount} -f"
     print(command)
     result = senderNode.cmd(command)
 
@@ -150,32 +238,50 @@ def getPingStats(sender: str, receiver: str) -> [float, float]:
     result = ping_parser.parse(result).as_dict()
     packetLoss = result["packet_loss_rate"]
     avgRTT = result["rtt_avg"]
-    print(f"""Average RTT: {avgRTT}\nPacket Loss: {packetLoss}""")
+    # print(f"""Average RTT: {avgRTT}\nPacket Loss: {packetLoss}""")
     return avgRTT, packetLoss
 
-def getIperfTcpStats(server: str, client: str):
-    server, client = net.getNodeByName(server), net.getNodeByName(client)
-    serverCommand = "iperf3 -s -p 5555 -i 1 -1"
-    clientCommand = f"iperf3 -c {server.IP()} -p 5555 -b 4M -R -t 5 -J"
-    # thread1 = threading.Thread(target=hostCommand, args=(server, serverCommand,))
-    # thread2 = threading.Thread(target=hostCommand, args=(client, clientCommand,))
+def generateTraffic(sender: str, receiver: str, getStats: bool, bandWidth: str):
+    global activeThreadCount
+    global activeThreadList
+
+    server, client = net.getNodeByName(sender), net.getNodeByName(receiver)
+    port = "5555"
+    bandWidth = bandWidth
+    if getStats:
+        time = "30"
+    else:
+        time = "180"
+
+    serverCommand = f"iperf3 -s -p {port} -i 1 -1"
+    clientCommand = f"iperf3 -c {server.IP()} -p {port} -b {bandWidth} -R -t {time} -J"
+
     serverThread = HostCommand(server, serverCommand)
+    serverThread.daemon = True
+    activeThreadCount += 1
+    activeThreadList[f"thread_{activeThreadCount}"] = serverThread
+
     clientThread = HostCommand(client, clientCommand) 
+    clientThread.daemon = True
+    if not getStats:
+        activeThreadCount += 1
+        activeThreadList[f"thread_{activeThreadCount}"] = clientThread
 
     serverThread.start()
-    time.sleep(1)
+    sleep(1) # time.sleep
     clientThread.start()
 
-    serverThread.join()
-    clientThread.join()
+    result = ""
 
-    print(json.loads(clientThread.result)["end"])
+    if getStats: 
+        serverThread.join()
+        clientThread.join()
+        result = json.loads(clientThread.result)["end"]
+    else:
+        pass
+    
+    return result
 
-# def hostCommand(host: Host, command: str):
-#     result = host.cmd(command)
-#     return result
- 
-# custom thread
 class HostCommand(Thread):
     def __init__(self, host: Host, command: str):
         Thread.__init__(self)
