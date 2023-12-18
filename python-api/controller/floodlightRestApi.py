@@ -58,7 +58,7 @@ def getDevicesByMac(mac: str) -> dict:
         if sub["mac"] == [mac]:
             result = sub
 
-    print("[INFO]****** GET METHOD RESULT *****\n", result)
+    # print("[INFO]****** GET METHOD RESULT *****\n", result)
     return result
 
 def getSwitchAndPortByHost(mac: str) -> [str, str]:
@@ -84,7 +84,7 @@ def pathPusher(src_host_mac:str, src_host_ipv4:str, dst_host_mac:str, dst_host_i
 
     path, latency, hop_count = getPathById(src_switch_dpid, dst_switch_dpid, num_paths, path_index)
 
-    print(f"Hop Count: {hop_count}\nLatency: {latency}\nPath: {path}")
+    #print(f"Hop Count: {hop_count}\nLatency: {latency}\nPath: {path}")
     path.insert(0,{'dpid': src_switch_dpid, 'port': str(src_switch_port)})
     path.append({'dpid': dst_switch_dpid, 'port': str(dst_switch_port)})
 
@@ -136,12 +136,35 @@ def deleteAllFlows():
     print("[INFO]****** GET METHOD RESULT *****\n", response_json)
     return response_json
 
+def setRoutingMetric(metric:str):
+    url_post = "http://127.0.0.1:8080/wm/routing/metric/json"
+    json = {"metric" : metric}
+    post_response = requests.post(url_post, json=json)
+    post_response_json = post_response.json()
+    print(post_response_json)
+
+def enableSwitchStats():
+    url_post = "http://127.0.0.1:8080/wm/statistics/config/enable/json"
+    data = ''
+    post_response = requests.post(url_post, data=data)
+    post_response_json = post_response.json()
+    print(post_response_json)
+
+def getSwitchStatByPort(switch:str, port):
+    port = str(port)
+    url = f"http://127.0.0.1:8080/wm/statistics/bandwidth/{switch}/port/json"
+    response = requests.get(url)
+    response_json = response.json()
+    return response_json
+
 if __name__ == "__main__":
     # getPathById Test Codes
     # src_dpid = "00:00:00:00:00:00:00:01"
     # dst_dpid = "00:00:00:00:00:00:00:10"
     # num_paths = 3
-    # getPathById(src_dpid, dst_dpid, num_paths, 2)
+    # print(getPathById(src_dpid, dst_dpid, num_paths, 0))
+
+    getPaths("00:00:00:00:00:00:00:01", "00:00:00:00:00:00:00:10", 5)
 
     # getDevices Test Codes
     # getDevices()
@@ -154,12 +177,12 @@ if __name__ == "__main__":
     # getSwitchAndPortByHost("00:00:00:00:00:0a")
 
     # pathPusher Test Codes
-    # pathPusher(src_host_mac="00:00:00:00:00:01", 
-    #            src_host_ipv4= "10.0.0.1/32",
-    #            dst_host_mac="00:00:00:00:00:0a",
-    #            dst_host_ipv4="10.0.0.10/32",
-    #            num_paths = 3, 
-    #            path_index = 2)
+    pathPusher(src_host_mac="00:00:00:00:00:01", 
+               src_host_ipv4= "10.0.0.1/32",
+               dst_host_mac="00:00:00:00:00:04",
+               dst_host_ipv4="10.0.0.10/32",
+               num_paths = 3, 
+               path_index = 0)
 
     # deleteAllFlows Test Codes
-    deleteAllFlows()
+    # deleteAllFlows()
