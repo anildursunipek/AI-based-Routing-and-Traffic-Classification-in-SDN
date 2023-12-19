@@ -152,7 +152,7 @@ def enableSwitchStats():
 
 def getSwitchStatByPort(switch:str, port):
     port = str(port)
-    url = f"http://127.0.0.1:8080/wm/statistics/bandwidth/{switch}/port/json"
+    url = f"http://127.0.0.1:8080/wm/statistics/bandwidth/{switch}/{port}/json"
     response = requests.get(url)
     response_json = response.json()
     return response_json
@@ -164,7 +164,7 @@ if __name__ == "__main__":
     # num_paths = 3
     # print(getPathById(src_dpid, dst_dpid, num_paths, 0))
 
-    getPaths("00:00:00:00:00:00:00:01", "00:00:00:00:00:00:00:10", 5)
+    # getPaths("00:00:00:00:00:00:00:01", "00:00:00:00:00:00:00:10", 5)
 
     # getDevices Test Codes
     # getDevices()
@@ -177,12 +177,14 @@ if __name__ == "__main__":
     # getSwitchAndPortByHost("00:00:00:00:00:0a")
 
     # pathPusher Test Codes
-    pathPusher(src_host_mac="00:00:00:00:00:01", 
-               src_host_ipv4= "10.0.0.1/32",
-               dst_host_mac="00:00:00:00:00:04",
-               dst_host_ipv4="10.0.0.10/32",
-               num_paths = 3, 
-               path_index = 0)
+    # pathPusher(src_host_mac="00:00:00:00:00:01", 
+    #            src_host_ipv4= "10.0.0.1/32",
+    #            dst_host_mac="00:00:00:00:00:04",
+    #            dst_host_ipv4="10.0.0.10/32",
+    #            num_paths = 3, 
+    #            path_index = 0)
 
     # deleteAllFlows Test Codes
     # deleteAllFlows()
+
+    print(getSwitchStatByPort("00:00:00:00:00:00:00:01", 4))
