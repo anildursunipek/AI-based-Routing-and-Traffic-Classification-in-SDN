@@ -135,7 +135,6 @@ def startNetwork():
 
     info('[INFO]****** Testing Connectivity Between Hosts *****\n')
     net.pingAll()
-
     CLI(net)
     net.stop()
 

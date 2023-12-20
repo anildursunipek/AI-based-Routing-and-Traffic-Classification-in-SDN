@@ -3,7 +3,7 @@
 import sys
 sys.path.insert(0, "/home/anil/Desktop/sdn-based-device-management-application/python-api/controller")
 from time import sleep
-from mininet.cli import CLI
+# from mininet.cli import CLI
 from mininet.log import setLogLevel, info
 from mininet.net import Mininet
 from mininet.node import RemoteController, OVSKernelSwitch, CPULimitedHost, Host
@@ -14,6 +14,8 @@ import pingparsing
 import threading
 from threading import Thread
 import floodlightRestApi
+import subprocess
+from nfstream import NFStreamer
 
 activeThreadList = {}
 activeThreadCount = 0
@@ -164,16 +166,16 @@ def startNetwork():
     info('[INFO]****** Generating artificial traffic *****\n')
 
     # low traffic
-    # generateTraffic(sender="h8", receiver="h3", getStats=False, bandWidth="3500K")
+    # generateTraffic(sender="h8", receiver="h3", getStats=False, bandWidth="5M")
 
     # normal traffic
-    # generateTraffic(sender="h8", receiver="h3", getStats=False, bandWidth="3050K")
-    # generateTraffic(sender="h16", receiver="h14", getStats=False, bandWidth="3050K")
+    generateTraffic(sender="h8", receiver="h3", getStats=False, bandWidth="3050K")
+    generateTraffic(sender="h16", receiver="h14", getStats=False, bandWidth="3050K")
 
     # high traffic
-    generateTraffic(sender="h8", receiver="h3", getStats=False, bandWidth="100M")
-    generateTraffic(sender="h16", receiver="h14", getStats=False, bandWidth="100M")
-    generateTraffic(sender="h17", receiver="h15", getStats=False, bandWidth="100M")
+    # generateTraffic(sender="h8", receiver="h3", getStats=False, bandWidth="100M")
+    # generateTraffic(sender="h16", receiver="h14", getStats=False, bandWidth="100M")
+    # generateTraffic(sender="h17", receiver="h15", getStats=False, bandWidth="100M")
 
     
     sleep(15) # time.sleep
@@ -193,24 +195,48 @@ def startNetwork():
     print("*** Iperf TCP Result: ", iperfResult)
 
     # Start Video Stream
+    info(f'[INFO]****** Video Stream Starting *****\n')
     startStream(sender = "h9", receiver = "h0")
+    info(f'[INFO]****** Video Stream Ended *****\n')
+
+    # Calculate PSNR and SSIM
+    print(calculatePSNRAndSSIM())
 
     # CLI(net)
     info(f'[INFO]****** Active thread count: {threading.active_count()}\n')
     # for thread in activeThreadList.values():
     #     thread.join()
-
+    
+    info(f'[INFO]****** Mininet Cleaning *****\n')
+    cleanMininet()
     sys.exit()
     # net.stop()
+
+def cleanMininet():
+    script_path = 'mininet.sh'
+    subprocess.run(['bash', script_path])
+
+def calculatePSNRAndSSIM():
+    host = net.getNodeByName("h9") # random host
+    command = "ffmpeg -i /home/anil/Desktop/test/1080p.ts -i records/input.ts -lavfi  'ssim;[0:v][1:v]psnr' -f null -"
+    hostThread = HostCommand(host, command)
+    hostThread.daemon = True
+    hostThread.start()
+    hostThread.join()
+    psnr_and_ssım = hostThread.result
+    psnr_and_ssım = psnr_and_ssım.split("\n")
+    psnr_and_ssım = psnr_and_ssım[-3:]
+    return psnr_and_ssım
 
 def startStream(sender:str, receiver:str):
     senderNode, receiverNode = net.getNodeByName(sender), net.getNodeByName(receiver)
     port = "1234"
-    videoSource = "/home/anil/Desktop/test/1080.ts"
+    videoSource = "/home/anil/Desktop/opp.ts"
     receiverUrl = f"udp://{receiverNode.IP()}:{port}"
 
-    senderCommand = f"ffmpeg -re -i {videoSource} -c copy -f mpegts {receiverUrl}"
-    receiverCommand = f"ffplay -i {receiverUrl}"
+    senderCommand = f"ffmpeg -re -i {videoSource} -c copy -f mpegts {receiverUrl}" # "ffmpeg -re -i /home/anil/Desktop/test/1080p.ts -c copy -f mpegts udp://10.0.0.1:1234
+    # receiverCommand = f"ffplay -i {receiverUrl}"
+    receiverCommand = f"ffmpeg -i {receiverUrl} -c copy records/input.ts"
 
     senderThread = HostCommand(senderNode, senderCommand)
     receiverThread = HostCommand(receiverNode, receiverCommand) 
@@ -221,8 +247,21 @@ def startStream(sender:str, receiver:str):
     sleep(1) # time.sleep
     senderThread.start()
 
-    receiverThread.join()
     senderThread.join()
+    sleep(5)
+    info(f'[INFO]****** Ffmpeg Port Killing *****\n')
+    killFfmpegPorts(senderNode)
+    receiverThread.join()  
+    senderThread.result
+
+def killFfmpegPorts(senderNode):
+    commandCheckPort = "pgrep -x ffmpeg"
+    commandKillPort = "pkill -x ffmpeg"
+    result = senderNode.cmd(commandCheckPort)
+    while(result != ""):
+        senderNode.cmd(commandKillPort)
+        print("port öldürüldü")
+        result = senderNode.cmd(commandCheckPort)
 
 def getPingStats(sender: str, receiver: str) -> [float, float]:
     senderNode, receiverNode = net.getNodeByName(sender), net.getNodeByName(receiver)
@@ -251,22 +290,21 @@ def generateTraffic(sender: str, receiver: str, getStats: bool, bandWidth: str):
     if getStats:
         time = "30"
     else:
-        time = "180"
+        time = "350"
 
     serverCommand = f"iperf3 -s -p {port} -i 1 -1"
     clientCommand = f"iperf3 -c {server.IP()} -p {port} -b {bandWidth} -R -t {time} -J"
 
     serverThread = HostCommand(server, serverCommand)
     serverThread.daemon = True
-    activeThreadCount += 1
-    activeThreadList[f"thread_{activeThreadCount}"] = serverThread
-
     clientThread = HostCommand(client, clientCommand) 
     clientThread.daemon = True
-    if not getStats:
-        activeThreadCount += 1
-        activeThreadList[f"thread_{activeThreadCount}"] = clientThread
 
+
+    if getStats:
+        streamListener = StreamListener("s0-eth4")
+        streamListener.daemon = True
+        streamListener.start()
     serverThread.start()
     sleep(1) # time.sleep
     clientThread.start()
@@ -276,9 +314,11 @@ def generateTraffic(sender: str, receiver: str, getStats: bool, bandWidth: str):
     if getStats: 
         serverThread.join()
         clientThread.join()
+        streamListener.flag = False
+        streamListener.join()
+        for stream in streamListener.stream:
+            print(stream)
         result = json.loads(clientThread.result)["end"]
-    else:
-        pass
     
     return result
 
@@ -290,6 +330,23 @@ class HostCommand(Thread):
         self.result = None
     def run(self):
         self.result = self._host.cmd(self._command)
+
+class StreamListener(Thread):
+    def __init__(self, interface: str):
+        Thread.__init__(self)
+        self.interface = interface
+        self.stream = []
+        self.flag = True
+
+    def run(self):
+        flow_streamer = NFStreamer(source=self.interface,
+                        statistical_analysis=True,
+                        idle_timeout=30)
+        self.stream = []
+        for flow in flow_streamer:
+            self.stream.append(flow)
+            if(self.flag == False):
+                break
 
 if __name__ == '__main__':
     setLogLevel('info')
