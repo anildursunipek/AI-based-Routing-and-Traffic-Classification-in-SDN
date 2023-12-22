@@ -26,7 +26,7 @@ class NsfnetTopo(Topo):
     """
     def build( self, **params ):
         # Hosts
-        hostCount = 8
+        hostCount = 12
         h0 = self.addHost('h0', ip='10.0.0.1', cpu=0.8/hostCount)
         # h1 = self.addHost('h1', ip='10.0.0.2', cpu=0.8/hostCount)
         # h2 = self.addHost('h2', ip='10.0.0.3', cpu=0.8/hostCount)
@@ -45,10 +45,10 @@ class NsfnetTopo(Topo):
         h15 = self.addHost('h15', ip='10.0.0.16', cpu=0.8/hostCount)
         h16 = self.addHost('h16', ip='10.0.0.17', cpu=0.8/hostCount)
         h17 = self.addHost('h17', ip='10.0.0.18', cpu=0.8/hostCount)
-        # h18 = self.addHost('h18', ip='10.0.0.19', cpu=0.8/hostCount)
-        # h19 = self.addHost('h19', ip='10.0.0.20', cpu=0.8/hostCount)
-        # h20 = self.addHost('h20', ip='10.0.0.21', cpu=0.8/hostCount)
-        # h21 = self.addHost('h21', ip='10.0.0.22', cpu=0.8/hostCount)
+        h18 = self.addHost('h18', ip='10.0.0.19', cpu=0.8/hostCount)
+        h19 = self.addHost('h19', ip='10.0.0.20', cpu=0.8/hostCount)
+        h20 = self.addHost('h20', ip='10.0.0.21', cpu=0.8/hostCount)
+        h21 = self.addHost('h21', ip='10.0.0.22', cpu=0.8/hostCount)
 
 
 
@@ -70,8 +70,8 @@ class NsfnetTopo(Topo):
 
         # Links
         # Link options
-        linkopts1 = dict(delay='25ms', bw=10, loss=0, max_queue_size=1000, use_htb=True) # between switch and host
-        linkopts2 = dict(delay='25ms', bw=10, loss=0, max_queue_size=1000, use_htb=True) # between 2 switches
+        linkopts1 = dict(delay='25ms', bw=10, loss=0, max_queue_size=1000, use_htb=True, cls=TCLink) # between switch and host
+        linkopts2 = dict(delay='25ms', bw=10, loss=0, max_queue_size=1000, use_htb=True, cls=TCLink) # between 2 switches
 
         # Switch to switch
         self.addLink(s0, s1, **linkopts2)
@@ -117,10 +117,10 @@ class NsfnetTopo(Topo):
         self.addLink(s3, h15, **linkopts1)
         self.addLink(s8, h16, **linkopts1)
         self.addLink(s8, h17, **linkopts1)
-        # self.addLink(s3, h18, **linkopts1)
-        # self.addLink(s3, h19, **linkopts1)
-        # self.addLink(s8, h20, **linkopts1)
-        # self.addLink(s8, h21, **linkopts1)
+        self.addLink(s3, h18, **linkopts1)
+        self.addLink(s3, h19, **linkopts1)
+        self.addLink(s8, h20, **linkopts1)
+        self.addLink(s8, h21, **linkopts1)
         
 def startNetwork():
     global net
@@ -166,16 +166,19 @@ def startNetwork():
     info('[INFO]****** Generating artificial traffic *****\n')
 
     # low traffic
-    # generateTraffic(sender="h8", receiver="h3", getStats=False, bandWidth="5M")
+    # generateTraffic(sender="h16", receiver="h14", getStats=False, bandWidth="1500K")
 
     # normal traffic
-    generateTraffic(sender="h8", receiver="h3", getStats=False, bandWidth="3050K")
-    generateTraffic(sender="h16", receiver="h14", getStats=False, bandWidth="3050K")
+    # generateTraffic(sender="h8", receiver="h3", getStats=False, bandWidth="2650K")
+    # generateTraffic(sender="h16", receiver="h14", getStats=False, bandWidth="2650K")
 
     # high traffic
-    # generateTraffic(sender="h8", receiver="h3", getStats=False, bandWidth="100M")
-    # generateTraffic(sender="h16", receiver="h14", getStats=False, bandWidth="100M")
-    # generateTraffic(sender="h17", receiver="h15", getStats=False, bandWidth="100M")
+    generateTraffic(sender="h8", receiver="h3", getStats=False, bandWidth="100M")
+    generateTraffic(sender="h16", receiver="h14", getStats=False, bandWidth="100M")
+    generateTraffic(sender="h17", receiver="h15", getStats=False, bandWidth="100M")
+    generateTraffic(sender="h20", receiver="h18", getStats=False, bandWidth="100M")
+    generateTraffic(sender="h21", receiver="h19", getStats=False, bandWidth="100M")
+
 
     
     sleep(15) # time.sleep
@@ -218,20 +221,21 @@ def cleanMininet():
 
 def calculatePSNRAndSSIM():
     host = net.getNodeByName("h9") # random host
-    command = "ffmpeg -i /home/anil/Desktop/test/1080p.ts -i records/input.ts -lavfi  'ssim;[0:v][1:v]psnr' -f null -"
+    videoSource = "/home/anil/Desktop/surreal.ts"
+    command = f"ffmpeg -i {videoSource} -i records/input.ts -lavfi  'ssim;[0:v][1:v]psnr' -f null -"
     hostThread = HostCommand(host, command)
     hostThread.daemon = True
     hostThread.start()
     hostThread.join()
     psnr_and_ssım = hostThread.result
-    psnr_and_ssım = psnr_and_ssım.split("\n")
-    psnr_and_ssım = psnr_and_ssım[-3:]
+    # psnr_and_ssım = psnr_and_ssım.split("\n")
+    # psnr_and_ssım = psnr_and_ssım[-3:]
     return psnr_and_ssım
 
 def startStream(sender:str, receiver:str):
     senderNode, receiverNode = net.getNodeByName(sender), net.getNodeByName(receiver)
     port = "1234"
-    videoSource = "/home/anil/Desktop/opp.ts"
+    videoSource = "/home/anil/Desktop/surreal.ts"
     receiverUrl = f"udp://{receiverNode.IP()}:{port}"
 
     senderCommand = f"ffmpeg -re -i {videoSource} -c copy -f mpegts {receiverUrl}" # "ffmpeg -re -i /home/anil/Desktop/test/1080p.ts -c copy -f mpegts udp://10.0.0.1:1234
@@ -252,7 +256,7 @@ def startStream(sender:str, receiver:str):
     info(f'[INFO]****** Ffmpeg Port Killing *****\n')
     killFfmpegPorts(senderNode)
     receiverThread.join()  
-    senderThread.result
+    print(senderThread.result)
 
 def killFfmpegPorts(senderNode):
     commandCheckPort = "pgrep -x ffmpeg"
