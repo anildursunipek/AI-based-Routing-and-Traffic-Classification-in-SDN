@@ -2,7 +2,7 @@
 
 import sys
 sys.path.insert(0, "/home/anil/Desktop/sdn-based-device-management-application/python-api/controller")
-from time import sleep
+from time import sleep, perf_counter
 from mininet.cli import CLI
 from mininet.log import setLogLevel, info
 from mininet.net import Mininet
@@ -16,9 +16,7 @@ from threading import Thread
 import floodlightRestApi
 import subprocess
 from nfstream import NFStreamer
-
-activeThreadList = {}
-activeThreadCount = 0
+import pandas as pd
 
 class NsfnetTopo(Topo):
     """
@@ -49,8 +47,6 @@ class NsfnetTopo(Topo):
         h19 = self.addHost('h19', ip='10.0.0.20', cpu=0.8/hostCount)
         h20 = self.addHost('h20', ip='10.0.0.21', cpu=0.8/hostCount)
         h21 = self.addHost('h21', ip='10.0.0.22', cpu=0.8/hostCount)
-
-
 
         # Switches
         s0 = self.addSwitch('s0', dpid='00:00:00:00:00:00:00:01', protocols="OpenFlow13")
@@ -123,6 +119,10 @@ class NsfnetTopo(Topo):
         self.addLink(s8, h21, **linkopts1)
         
 def startNetwork():
+    start = perf_counter() # time.perf_counter()
+    dataFrame = pd.read_csv('data.csv')
+    dataRow = []
+
     global net
     net = Mininet(topo=NsfnetTopo(), link=TCLink, build=False, switch=OVSKernelSwitch, autoSetMacs=True, waitConnected=True)
 
@@ -144,49 +144,33 @@ def startNetwork():
 
     info('[INFO]****** Testing Connectivity Between Hosts *****\n')
     net.pingAll()
-    # CLI(net)
-    # net.stop()
-    # sys.exit()
 
     info('[INFO]****** Setting Path Between 2 Hosts *****\n')
     scenerio_1()
-    # sourceNode, destNode = net.getNodeByName("h0"), net.getNodeByName("h9")
-    # src_host_mac = sourceNode.MAC()
-    # src_host_ipv4 = sourceNode.IP()
-    # dst_host_mac = destNode.MAC()
-    # dst_host_ipv4 = destNode.IP()
-    # num_paths = 3
-    # path_index = 0
-    # floodlightRestApi.pathPusher(src_host_mac, src_host_ipv4, dst_host_mac, dst_host_ipv4, num_paths, path_index)
-
 
     # Start traffic
-    # 1 connection --> Low traffic
-    # 2 connection --> Normal traffic
-    # 3 connection --> High traffic
-    
 
     info(f'[INFO]****** Active thread count: {threading.active_count()}\n')
-
     info('[INFO]****** Generating artificial traffic *****\n')
 
     # low traffic
-    # generateTraffic(sender="h16", receiver="h14", getStats=False, bandWidth="1500K")
+    # generateTraffic(sender="h16", receiver="h14", getStats=False, bandWidth="1000K")
+    # traffic_type = 1
 
     # normal traffic
-    # generateTraffic(sender="h8", receiver="h3", getStats=False, bandWidth="2650K")
-    # generateTraffic(sender="h16", receiver="h14", getStats=False, bandWidth="2650K")
+    generateTraffic(sender="h8", receiver="h3", getStats=False, bandWidth="2500K")
+    generateTraffic(sender="h16", receiver="h14", getStats=False, bandWidth="2500K")
+    traffic_type = 2
 
-    # high traffic
-    generateTraffic(sender="h8", receiver="h3", getStats=False, bandWidth="100M")
-    generateTraffic(sender="h16", receiver="h14", getStats=False, bandWidth="100M")
-    generateTraffic(sender="h17", receiver="h15", getStats=False, bandWidth="100M")
-    generateTraffic(sender="h20", receiver="h18", getStats=False, bandWidth="100M")
-    generateTraffic(sender="h21", receiver="h19", getStats=False, bandWidth="100M")
+    # # high traffic
+    # generateTraffic(sender="h8", receiver="h3", getStats=False, bandWidth="100M")
+    # generateTraffic(sender="h16", receiver="h14", getStats=False, bandWidth="100M")
+    # generateTraffic(sender="h17", receiver="h15", getStats=False, bandWidth="100M")
+    # generateTraffic(sender="h20", receiver="h18", getStats=False, bandWidth="100M")
+    # generateTraffic(sender="h21", receiver="h19", getStats=False, bandWidth="100M")
+    # traffic_type = 3
 
-
-    
-    sleep(15) # time.sleep
+    sleep(13) # time.sleep
     info(f'[INFO]****** Active thread count: {threading.active_count()}\n')
 
     # Test the network
@@ -195,11 +179,21 @@ def startNetwork():
     # Ping stats
     info(f'[INFO]****** Ping Stats *****\n')
     avgRTT, packetLoss = getPingStats("h0", "h9")
+    dataRow.append(avgRTT)
+    dataRow.append(packetLoss)
     print(f"""*** Average RTT: {avgRTT}\nPacket Loss: {packetLoss}""")
 
     # Iperf tcp stats
     info(f'[INFO]****** Iperf TCP Stats *****\n')
     iperfResult = generateTraffic(sender = "h9", receiver = "h0", getStats = True, bandWidth="0")
+    dataRow.append(iperfResult["sum_received"]["bits_per_second"])
+    dataRow.append(iperfResult["sum_sent"]["retransmits"])
+    dataRow.append(iperfResult["cpu_utilization_percent"]["host_total"])
+    dataRow.append(iperfResult["cpu_utilization_percent"]["host_user"])
+    dataRow.append(iperfResult["cpu_utilization_percent"]["host_system"])
+    dataRow.append(iperfResult["cpu_utilization_percent"]["remote_total"])
+    dataRow.append(iperfResult["cpu_utilization_percent"]["remote_user"])
+    dataRow.append(iperfResult["cpu_utilization_percent"]["remote_system"])
     print("*** Iperf TCP Result: ", iperfResult)
 
     # Start Video Stream
@@ -208,34 +202,72 @@ def startNetwork():
     info(f'[INFO]****** Video Stream Ended *****\n')
 
     # Calculate PSNR and SSIM
-    print(calculatePSNRAndSSIM())
+    info(f'[INFO]****** Calculating PSNR Value *****\n')
+    psnr = calculatePSNR()
+    print("PSNR: " , psnr)
+    dataRow.append(psnr)
 
-    # CLI(net)
+    info(f'[INFO]****** Calculating SSIM Value *****\n')
+    ssimResult_first, ssimResult_second = calculateSSIM()
+    dataRow.append(ssimResult_first)
+    dataRow.append(ssimResult_second)
+    print("SSIM: ", ssimResult_first, " || ", ssimResult_second)
+
     info(f'[INFO]****** Active thread count: {threading.active_count()}\n')
-    # for thread in activeThreadList.values():
-    #     thread.join()
-    
     info(f'[INFO]****** Mininet Cleaning *****\n')
     cleanMininet()
+    try:
+        deleteFile("records/input.ts")
+    except Exception as e:
+        print(f'Exception occurred: {e}')
+
+    print("dataRow YAZDIRILDI___________________________")
+    print(dataRow)
+    dataFrame.loc[len(dataFrame.index)] = dataRow
+    dataFrame.to_csv("data.csv", sep=',', index=False, encoding='utf-8')
+
+    end = perf_counter() # time.perf_counter()
+    diff = end - start
+    info(f'[INFO]****** Completed in {diff} seconds *****\n')
+
+    info(f'[INFO]****** Active thread count: {threading.active_count()}\n')
     sys.exit()
-    # net.stop()
+
+def deleteFile(fileName: str):
+    script_path = 'deleteFile.sh'
+    subprocess.run(['bash', script_path, fileName])
 
 def cleanMininet():
     script_path = 'mininet.sh'
     subprocess.run(['bash', script_path])
 
-def calculatePSNRAndSSIM():
+def calculatePSNR():
     host = net.getNodeByName("h9") # random host
     videoSource = "/home/anil/Desktop/surreal.ts"
-    command = f"ffmpeg -i {videoSource} -i records/input.ts -lavfi  'ssim;[0:v][1:v]psnr' -f null -"
+    outputSource = "records/input.ts"
+    # command = f"ffmpeg -i {videoSource} -i {outputSource} -lavfi  'ssim;[0:v][1:v]psnr' -f null -"
+    command = f"ffmpeg -i {videoSource} -i {outputSource} -lavfi '[0:v][1:v]psnr' -f null -"
     hostThread = HostCommand(host, command)
     hostThread.daemon = True
     hostThread.start()
     hostThread.join()
-    psnr_and_ssım = hostThread.result
-    # psnr_and_ssım = psnr_and_ssım.split("\n")
-    # psnr_and_ssım = psnr_and_ssım[-3:]
-    return psnr_and_ssım
+    psnrResult = hostThread.result
+    psnrResult = float(psnrResult.split("\n")[-2].split("average:")[1].split(" ")[0].strip())
+    return psnrResult
+
+def calculateSSIM():
+    host = net.getNodeByName("h9") # random host
+    videoSource = "/home/anil/Desktop/surreal.ts"
+    outputSource = "records/input.ts"
+    command = f"ffmpeg -i {videoSource} -i {outputSource} -lavfi '[0:v][1:v]ssim' -f null -"
+    hostThread = HostCommand(host, command)
+    hostThread.daemon = True
+    hostThread.start()
+    hostThread.join()
+    ssimResult = hostThread.result.split("\n")[-2]
+    firstReulst = float(ssimResult.split("All:")[1].split(" ")[0])
+    secondResult = float(ssimResult.split("All:")[1].split(" ")[1].replace("(","").replace(")",""))
+    return firstReulst, secondResult
 
 def startStream(sender:str, receiver:str):
     senderNode, receiverNode = net.getNodeByName(sender), net.getNodeByName(receiver)
@@ -261,7 +293,7 @@ def startStream(sender:str, receiver:str):
     info(f'[INFO]****** Ffmpeg Port Killing *****\n')
     killFfmpegPorts(senderNode)
     receiverThread.join()  
-    print(senderThread.result)
+    #print(senderThread.result)
 
 def killFfmpegPorts(senderNode):
     commandCheckPort = "pgrep -x ffmpeg"
@@ -310,10 +342,10 @@ def generateTraffic(sender: str, receiver: str, getStats: bool, bandWidth: str):
     clientThread.daemon = True
 
 
-    if getStats:
-        streamListener = StreamListener("s0-eth4")
-        streamListener.daemon = True
-        streamListener.start()
+    # if getStats:
+    #     streamListener = StreamListener("s0-eth4")
+    #     streamListener.daemon = True
+    #     streamListener.start()
     serverThread.start()
     sleep(1) # time.sleep
     clientThread.start()
@@ -323,10 +355,10 @@ def generateTraffic(sender: str, receiver: str, getStats: bool, bandWidth: str):
     if getStats: 
         serverThread.join()
         clientThread.join()
-        streamListener.flag = False
-        streamListener.join()
-        for stream in streamListener.stream:
-            print(stream)
+        # streamListener.flag = False
+        # streamListener.join()
+        # for stream in streamListener.stream:
+        #     print(stream)
         result = json.loads(clientThread.result)["end"]
     
     return result
