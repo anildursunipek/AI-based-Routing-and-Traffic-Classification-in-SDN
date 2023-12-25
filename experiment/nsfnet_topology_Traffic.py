@@ -131,7 +131,7 @@ def startNetwork():
 
     # Build the network
     info('[INFO]****** Building Network *****\n')
-    net.build()
+    net.build() 
     info('[INFO]****** Starting Network *****\n')
     net.start()
     sleep(2) # time.sleep
@@ -143,6 +143,8 @@ def startNetwork():
 
     info('[INFO]****** Testing Connectivity Between Hosts *****\n')
     net.pingAll()
+    print(net.links)
+    # switch = net.getNodeByName("s0")
 
     info('[INFO]****** Setting Path Between 2 Hosts *****\n')
     scenerio_1()
@@ -156,8 +158,8 @@ def startNetwork():
     # traffic_type = 1
 
     # normal traffic
-    generateTraffic(sender="h8", receiver="h3", getStats=False, bandWidth="2500K")
-    generateTraffic(sender="h16", receiver="h14", getStats=False, bandWidth="2500K")
+    generateTraffic(sender="h8", receiver="h3", getStats=False, bandWidth="2525K")
+    generateTraffic(sender="h16", receiver="h14", getStats=False, bandWidth="2525K")
     traffic_type = 2
 
     # # high traffic
@@ -184,16 +186,55 @@ def startNetwork():
     # Iperf tcp stats
     info(f'[INFO]****** Iperf TCP Stats *****\n')
     iperfResult = generateTraffic(sender = "h9", receiver = "h0", getStats = True, bandWidth="0")
-    dataRow['bits_per_second'] = iperfResult["sum_received"]["bits_per_second"]
-    dataRow['bu_ratio'] = 100 - ((iperfResult["sum_received"]["bits_per_second"] / 10000000) * 100)
-    dataRow['retransmits'] = iperfResult["sum_sent"]["retransmits"]
-    dataRow['cpu_host_total'] = iperfResult["cpu_utilization_percent"]["host_total"]
-    dataRow['cpu_host_user'] = iperfResult["cpu_utilization_percent"]["host_user"]
-    dataRow['cpu_host_system'] = iperfResult["cpu_utilization_percent"]["host_system"]
-    dataRow['cpu_remote_total'] = iperfResult["cpu_utilization_percent"]["remote_total"]
-    dataRow['cpu_remote_user'] = iperfResult["cpu_utilization_percent"]["remote_user"]
-    dataRow['cpu_remote_system'] = iperfResult["cpu_utilization_percent"]["remote_system"]
-    print("*** Iperf TCP Result: ", iperfResult)
+    tcpFlowResult = iperfResult[0]
+    dataRow['bits_per_second'] = tcpFlowResult["sum_received"]["bits_per_second"]
+    dataRow['bu_ratio'] = 100 - ((tcpFlowResult["sum_received"]["bits_per_second"] / 10000000) * 100)
+    dataRow['retransmits'] = tcpFlowResult["sum_sent"]["retransmits"]
+    dataRow['cpu_host_total'] = tcpFlowResult["cpu_utilization_percent"]["host_total"]
+    dataRow['cpu_host_user'] = tcpFlowResult["cpu_utilization_percent"]["host_user"]
+    dataRow['cpu_host_system'] = tcpFlowResult["cpu_utilization_percent"]["host_system"]
+    dataRow['cpu_remote_total'] = tcpFlowResult["cpu_utilization_percent"]["remote_total"]
+    dataRow['cpu_remote_user'] = tcpFlowResult["cpu_utilization_percent"]["remote_user"]
+    dataRow['cpu_remote_system'] = tcpFlowResult["cpu_utilization_percent"]["remote_system"]
+    print("*** Iperf TCP Result: ", tcpFlowResult)
+
+    nfstreamResult = iperfResult[1]
+    dataRow['bidirectional_duration_ms'] = nfstreamResult[0].bidirectional_duration_ms
+    dataRow['bidirectional_packets'] = nfstreamResult[0].bidirectional_packets
+    dataRow['bidirectional_bytes'] = nfstreamResult[0].bidirectional_bytes
+    dataRow['src2dst_duration_ms'] = nfstreamResult[0].src2dst_duration_ms
+    dataRow['src2dst_packets'] = nfstreamResult[0].src2dst_packets
+    dataRow['src2dst_bytes'] = nfstreamResult[0].src2dst_bytes
+    dataRow['dst2src_duration_ms'] = nfstreamResult[0].dst2src_duration_ms
+    dataRow['dst2src_packets'] = nfstreamResult[0].dst2src_packets
+    dataRow['dst2src_bytes'] = nfstreamResult[0].dst2src_bytes
+    dataRow['bidirectional_min_ps'] = nfstreamResult[0].bidirectional_min_ps
+    dataRow['bidirectional_mean_ps'] = nfstreamResult[0].bidirectional_mean_ps
+    dataRow['bidirectional_stddev_ps'] = nfstreamResult[0].bidirectional_stddev_ps
+    dataRow['bidirectional_max_ps'] = nfstreamResult[0].bidirectional_max_ps
+    dataRow['src2dst_min_ps'] = nfstreamResult[0].src2dst_min_ps
+    dataRow['src2dst_mean_ps'] = nfstreamResult[0].src2dst_mean_ps
+    dataRow['src2dst_stddev_ps'] = nfstreamResult[0].src2dst_stddev_ps
+    dataRow['src2dst_max_ps'] = nfstreamResult[0].src2dst_max_ps
+    dataRow['dst2src_min_ps'] = nfstreamResult[0].dst2src_min_ps
+    dataRow['dst2src_mean_ps'] = nfstreamResult[0].dst2src_mean_ps
+    dataRow['dst2src_stddev_ps'] = nfstreamResult[0].dst2src_stddev_ps
+    dataRow['dst2src_max_ps'] = nfstreamResult[0].dst2src_max_ps
+    dataRow['bidirectional_min_piat_ms'] = nfstreamResult[0].bidirectional_min_piat_ms
+    dataRow['bidirectional_mean_piat_ms'] = nfstreamResult[0].bidirectional_mean_piat_ms
+    dataRow['bidirectional_stddev_piat_ms'] = nfstreamResult[0].bidirectional_stddev_piat_ms
+    dataRow['bidirectional_max_piat_ms'] = nfstreamResult[0].bidirectional_max_piat_ms
+    dataRow['src2dst_min_piat_ms'] = nfstreamResult[0].src2dst_min_piat_ms
+    dataRow['src2dst_mean_piat_ms'] = nfstreamResult[0].src2dst_mean_piat_ms
+    dataRow['src2dst_stddev_piat_ms'] = nfstreamResult[0].src2dst_stddev_piat_ms
+    dataRow['src2dst_max_piat_ms'] = nfstreamResult[0].src2dst_max_piat_ms
+    dataRow['dst2src_min_piat_ms'] = nfstreamResult[0].dst2src_min_piat_ms
+    dataRow['dst2src_mean_piat_ms'] = nfstreamResult[0].dst2src_mean_piat_ms
+    dataRow['dst2src_stddev_piat_ms'] = nfstreamResult[0].dst2src_stddev_piat_ms
+    dataRow['dst2src_max_piat_ms'] = nfstreamResult[0].dst2src_max_piat_ms
+
+    # cleanMininet()
+    # sys.exit()
 
     # Start Video Stream
     info(f'[INFO]****** Video Stream Starting *****\n')
@@ -295,7 +336,6 @@ def startStream(sender:str, receiver:str):
     info(f'[INFO]****** Ffmpeg Port Killing *****\n')
     killFfmpegPorts(senderNode)
     receiverThread.join()  
-    #print(senderThread.result)
 
 def killFfmpegPorts(senderNode):
     commandCheckPort = "pgrep -x ffmpeg"
@@ -323,11 +363,10 @@ def getPingStats(sender: str, receiver: str) -> [float, float]:
 def generateTraffic(sender: str, receiver: str, getStats: bool, bandWidth: str):
     server, client = net.getNodeByName(sender), net.getNodeByName(receiver)
     port = "5555"
-    bandWidth = bandWidth
     if getStats:
         time = "30"
     else:
-        time = "300"
+        time = "250"
 
     serverCommand = f"iperf3 -s -p {port} -i 1 -1"
     clientCommand = f"iperf3 -c {server.IP()} -p {port} -b {bandWidth} -R -t {time} -J"
@@ -337,27 +376,25 @@ def generateTraffic(sender: str, receiver: str, getStats: bool, bandWidth: str):
     clientThread = HostCommand(client, clientCommand) 
     clientThread.daemon = True
 
-
-    # if getStats:
-    #     streamListener = StreamListener("s0-eth4")
-    #     streamListener.daemon = True
-    #     streamListener.start()
+    streamListener = StreamListener("s0-eth4")
+    streamListener.daemon = True
+    if getStats:
+        streamListener.start()
+    sleep(1)
     serverThread.start()
     sleep(1) # time.sleep
     clientThread.start()
 
-    result = ""
-
+    
     if getStats: 
         serverThread.join()
         clientThread.join()
-        # streamListener.flag = False
-        # streamListener.join()
-        # for stream in streamListener.stream:
-        #     print(stream)
+        streamListener.flag = False
+        streamListener.join()
+        for stream in streamListener.stream:
+            print(stream)
         result = json.loads(clientThread.result)["end"]
-    
-    return result
+        return result, streamListener.stream
 
 class HostCommand(Thread):
     def __init__(self, host: Host, command: str):
@@ -378,10 +415,13 @@ class StreamListener(Thread):
     def run(self):
         flow_streamer = NFStreamer(source=self.interface,
                         statistical_analysis=True,
-                        idle_timeout=30)
+                        idle_timeout=15)
         self.stream = []
         for flow in flow_streamer:
-            self.stream.append(flow)
+            if(((flow.src_ip == "10.0.0.1" and flow.dst_ip == "10.0.0.10") or (flow.src_ip == "10.0.0.10" and flow.dst_ip == "10.0.0.1")) and 
+                flow.application_name == "Unknown" and flow.application_category_name == "Unspecified"):
+                self.stream.append(flow)
+                print("FLOW ADDED")
             if(self.flag == False):
                 break
 
