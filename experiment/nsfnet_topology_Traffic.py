@@ -1,9 +1,8 @@
 #!/usr/bin/python
 
 import sys
-sys.path.insert(0, "/home/anil/Desktop/sdn-based-device-management-application/python-api/controller")
+sys.path.insert(0, "../python-api/controller")
 from time import sleep, perf_counter
-from mininet.cli import CLI
 from mininet.log import setLogLevel, info
 from mininet.net import Mininet
 from mininet.node import RemoteController, OVSKernelSwitch, CPULimitedHost, Host
@@ -121,7 +120,7 @@ class NsfnetTopo(Topo):
 def startNetwork():
     start = perf_counter() # time.perf_counter()
     dataFrame = pd.read_csv('data.csv')
-    dataRow = []
+    dataRow = {}
 
     global net
     net = Mininet(topo=NsfnetTopo(), link=TCLink, build=False, switch=OVSKernelSwitch, autoSetMacs=True, waitConnected=True)
@@ -140,7 +139,7 @@ def startNetwork():
     # Configure controller
     info('[INFO]****** Configuring Controller *****\n')
     floodlightRestApi.setRoutingMetric("hopcount")
-    floodlightRestApi.enableSwitchStats()
+    # floodlightRestApi.enableSwitchStats()
 
     info('[INFO]****** Testing Connectivity Between Hosts *****\n')
     net.pingAll()
@@ -149,7 +148,6 @@ def startNetwork():
     scenerio_1()
 
     # Start traffic
-
     info(f'[INFO]****** Active thread count: {threading.active_count()}\n')
     info('[INFO]****** Generating artificial traffic *****\n')
 
@@ -179,21 +177,22 @@ def startNetwork():
     # Ping stats
     info(f'[INFO]****** Ping Stats *****\n')
     avgRTT, packetLoss = getPingStats("h0", "h9")
-    dataRow.append(avgRTT)
-    dataRow.append(packetLoss)
+    dataRow['average_rtt'] = avgRTT
+    dataRow['packet_loss'] = packetLoss
     print(f"""*** Average RTT: {avgRTT}\nPacket Loss: {packetLoss}""")
 
     # Iperf tcp stats
     info(f'[INFO]****** Iperf TCP Stats *****\n')
     iperfResult = generateTraffic(sender = "h9", receiver = "h0", getStats = True, bandWidth="0")
-    dataRow.append(iperfResult["sum_received"]["bits_per_second"])
-    dataRow.append(iperfResult["sum_sent"]["retransmits"])
-    dataRow.append(iperfResult["cpu_utilization_percent"]["host_total"])
-    dataRow.append(iperfResult["cpu_utilization_percent"]["host_user"])
-    dataRow.append(iperfResult["cpu_utilization_percent"]["host_system"])
-    dataRow.append(iperfResult["cpu_utilization_percent"]["remote_total"])
-    dataRow.append(iperfResult["cpu_utilization_percent"]["remote_user"])
-    dataRow.append(iperfResult["cpu_utilization_percent"]["remote_system"])
+    dataRow['bits_per_second'] = iperfResult["sum_received"]["bits_per_second"]
+    dataRow['bu_ratio'] = 100 - ((iperfResult["sum_received"]["bits_per_second"] / 10000000) * 100)
+    dataRow['retransmits'] = iperfResult["sum_sent"]["retransmits"]
+    dataRow['cpu_host_total'] = iperfResult["cpu_utilization_percent"]["host_total"]
+    dataRow['cpu_host_user'] = iperfResult["cpu_utilization_percent"]["host_user"]
+    dataRow['cpu_host_system'] = iperfResult["cpu_utilization_percent"]["host_system"]
+    dataRow['cpu_remote_total'] = iperfResult["cpu_utilization_percent"]["remote_total"]
+    dataRow['cpu_remote_user'] = iperfResult["cpu_utilization_percent"]["remote_user"]
+    dataRow['cpu_remote_system'] = iperfResult["cpu_utilization_percent"]["remote_system"]
     print("*** Iperf TCP Result: ", iperfResult)
 
     # Start Video Stream
@@ -205,31 +204,35 @@ def startNetwork():
     info(f'[INFO]****** Calculating PSNR Value *****\n')
     psnr = calculatePSNR()
     print("PSNR: " , psnr)
-    dataRow.append(psnr)
+    dataRow['psnr'] = psnr
 
     info(f'[INFO]****** Calculating SSIM Value *****\n')
     ssimResult_first, ssimResult_second = calculateSSIM()
-    dataRow.append(ssimResult_first)
-    dataRow.append(ssimResult_second)
+    dataRow['ssim_first_value'] = ssimResult_first
+    dataRow['ssim_second_value'] = ssimResult_second
     print("SSIM: ", ssimResult_first, " || ", ssimResult_second)
 
     info(f'[INFO]****** Active thread count: {threading.active_count()}\n')
     info(f'[INFO]****** Mininet Cleaning *****\n')
     cleanMininet()
+    sleep(3)
+
+    info(f'[INFO]****** Video File Removing *****\n\n')
     try:
         deleteFile("records/input.ts")
     except Exception as e:
         print(f'Exception occurred: {e}')
 
-    print("dataRow YAZDIRILDI___________________________")
+    dataRow['traffic_type'] = traffic_type
+    print("dataRow:")
     print(dataRow)
-    dataFrame.loc[len(dataFrame.index)] = dataRow
+    df_dictionary = pd.DataFrame([dataRow])
+    dataFrame = pd.concat([dataFrame, df_dictionary], ignore_index=True)
     dataFrame.to_csv("data.csv", sep=',', index=False, encoding='utf-8')
 
     end = perf_counter() # time.perf_counter()
     diff = end - start
     info(f'[INFO]****** Completed in {diff} seconds *****\n')
-
     info(f'[INFO]****** Active thread count: {threading.active_count()}\n')
     sys.exit()
 
@@ -243,9 +246,8 @@ def cleanMininet():
 
 def calculatePSNR():
     host = net.getNodeByName("h9") # random host
-    videoSource = "/home/anil/Desktop/surreal.ts"
+    videoSource = "../assets/surreal.ts"
     outputSource = "records/input.ts"
-    # command = f"ffmpeg -i {videoSource} -i {outputSource} -lavfi  'ssim;[0:v][1:v]psnr' -f null -"
     command = f"ffmpeg -i {videoSource} -i {outputSource} -lavfi '[0:v][1:v]psnr' -f null -"
     hostThread = HostCommand(host, command)
     hostThread.daemon = True
@@ -257,7 +259,7 @@ def calculatePSNR():
 
 def calculateSSIM():
     host = net.getNodeByName("h9") # random host
-    videoSource = "/home/anil/Desktop/surreal.ts"
+    videoSource = "../assets/surreal.ts"
     outputSource = "records/input.ts"
     command = f"ffmpeg -i {videoSource} -i {outputSource} -lavfi '[0:v][1:v]ssim' -f null -"
     hostThread = HostCommand(host, command)
@@ -272,10 +274,10 @@ def calculateSSIM():
 def startStream(sender:str, receiver:str):
     senderNode, receiverNode = net.getNodeByName(sender), net.getNodeByName(receiver)
     port = "1234"
-    videoSource = "/home/anil/Desktop/surreal.ts"
+    videoSource = "../assets/surreal.ts"
     receiverUrl = f"udp://{receiverNode.IP()}:{port}"
 
-    senderCommand = f"ffmpeg -re -i {videoSource} -c copy -f mpegts {receiverUrl}" # "ffmpeg -re -i /home/anil/Desktop/test/1080p.ts -c copy -f mpegts udp://10.0.0.1:1234
+    senderCommand = f"ffmpeg -re -i {videoSource} -c copy -f mpegts {receiverUrl}"
     # receiverCommand = f"ffplay -i {receiverUrl}"
     receiverCommand = f"ffmpeg -i {receiverUrl} -c copy records/input.ts"
 
@@ -301,7 +303,7 @@ def killFfmpegPorts(senderNode):
     result = senderNode.cmd(commandCheckPort)
     while(result != ""):
         senderNode.cmd(commandKillPort)
-        print("port öldürüldü")
+        print("Port Killed: ", result)
         result = senderNode.cmd(commandCheckPort)
 
 def getPingStats(sender: str, receiver: str) -> [float, float]:
@@ -310,28 +312,22 @@ def getPingStats(sender: str, receiver: str) -> [float, float]:
     print("Receiver ipv4 -> ", receiverIpv4)
     packetCount = "500"
     command = f"ping {receiverIpv4} -c {packetCount} -f"
-    print(command)
     result = senderNode.cmd(command)
 
     ping_parser = pingparsing.PingParsing()
-    # print(json.dumps(ping_parser.parse(result).as_dict(), indent=4))
     result = ping_parser.parse(result).as_dict()
     packetLoss = result["packet_loss_rate"]
     avgRTT = result["rtt_avg"]
-    # print(f"""Average RTT: {avgRTT}\nPacket Loss: {packetLoss}""")
     return avgRTT, packetLoss
 
 def generateTraffic(sender: str, receiver: str, getStats: bool, bandWidth: str):
-    global activeThreadCount
-    global activeThreadList
-
     server, client = net.getNodeByName(sender), net.getNodeByName(receiver)
     port = "5555"
     bandWidth = bandWidth
     if getStats:
         time = "30"
     else:
-        time = "350"
+        time = "300"
 
     serverCommand = f"iperf3 -s -p {port} -i 1 -1"
     clientCommand = f"iperf3 -c {server.IP()} -p {port} -b {bandWidth} -R -t {time} -J"
