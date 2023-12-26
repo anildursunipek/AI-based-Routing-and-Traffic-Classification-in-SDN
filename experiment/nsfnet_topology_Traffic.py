@@ -8,6 +8,7 @@ from mininet.net import Mininet
 from mininet.node import RemoteController, OVSKernelSwitch, CPULimitedHost, Host
 from mininet.topo import Topo
 from mininet.link import TCLink
+from mininet.cli import CLI
 import json
 import pingparsing
 import threading
@@ -119,10 +120,15 @@ class NsfnetTopo(Topo):
         
 def startNetwork():
     start = perf_counter() # time.perf_counter()
+
+    global net
+    global activeThreadList
+    activeThreadList = []
+    net = None
+
     dataFrame = pd.read_csv('data.csv')
     dataRow = {}
 
-    global net
     net = Mininet(topo=NsfnetTopo(), link=TCLink, build=False, switch=OVSKernelSwitch, autoSetMacs=True, waitConnected=True)
 
     remote_ip = "127.0.0.1"
@@ -143,8 +149,6 @@ def startNetwork():
 
     info('[INFO]****** Testing Connectivity Between Hosts *****\n')
     net.pingAll()
-    print(net.links)
-    # switch = net.getNodeByName("s0")
 
     info('[INFO]****** Setting Path Between 2 Hosts *****\n')
     scenerio_1()
@@ -152,15 +156,18 @@ def startNetwork():
     # Start traffic
     info(f'[INFO]****** Active thread count: {threading.active_count()}\n')
     info('[INFO]****** Generating artificial traffic *****\n')
+    time_1 = perf_counter()
+    print("Time Passed: ", time_1 - start)
 
     # low traffic
-    # generateTraffic(sender="h16", receiver="h14", getStats=False, bandWidth="1000K")
-    # traffic_type = 1
+    generateTraffic(sender="h8", receiver="h3", getStats=False, bandWidth="1500K")
+    generateTraffic(sender="h16", receiver="h14", getStats=False, bandWidth="1500K")
+    traffic_type = 1
 
     # normal traffic
-    generateTraffic(sender="h8", receiver="h3", getStats=False, bandWidth="2525K")
-    generateTraffic(sender="h16", receiver="h14", getStats=False, bandWidth="2525K")
-    traffic_type = 2
+    # generateTraffic(sender="h8", receiver="h3", getStats=False, bandWidth="2525K")
+    # generateTraffic(sender="h16", receiver="h14", getStats=False, bandWidth="2525K")
+    # traffic_type = 2
 
     # # high traffic
     # generateTraffic(sender="h8", receiver="h3", getStats=False, bandWidth="100M")
@@ -233,13 +240,14 @@ def startNetwork():
     dataRow['dst2src_stddev_piat_ms'] = nfstreamResult[0].dst2src_stddev_piat_ms
     dataRow['dst2src_max_piat_ms'] = nfstreamResult[0].dst2src_max_piat_ms
 
-    # cleanMininet()
-    # sys.exit()
-
     # Start Video Stream
     info(f'[INFO]****** Video Stream Starting *****\n')
     startStream(sender = "h9", receiver = "h0")
     info(f'[INFO]****** Video Stream Ended *****\n')
+    info(f'[INFO]****** Active thread count: {threading.active_count()}\n')
+
+    time_2 = perf_counter()
+    print("Time passed: ", time_2 - start)
 
     # Calculate PSNR and SSIM
     info(f'[INFO]****** Calculating PSNR Value *****\n')
@@ -256,7 +264,7 @@ def startNetwork():
     info(f'[INFO]****** Active thread count: {threading.active_count()}\n')
     info(f'[INFO]****** Mininet Cleaning *****\n')
     cleanMininet()
-    sleep(3)
+    sleep(2)
 
     info(f'[INFO]****** Video File Removing *****\n\n')
     try:
@@ -275,7 +283,14 @@ def startNetwork():
     diff = end - start
     info(f'[INFO]****** Completed in {diff} seconds *****\n')
     info(f'[INFO]****** Active thread count: {threading.active_count()}\n')
-    sys.exit()
+
+    for thread in activeThreadList:
+        print(thread)
+        print("Thread waiting...")
+        thread.join()
+        print("Thread done...")
+
+    # sys.exit()
 
 def deleteFile(fileName: str):
     script_path = 'deleteFile.sh'
@@ -361,12 +376,13 @@ def getPingStats(sender: str, receiver: str) -> [float, float]:
     return avgRTT, packetLoss
 
 def generateTraffic(sender: str, receiver: str, getStats: bool, bandWidth: str):
+    global activeThreadList
     server, client = net.getNodeByName(sender), net.getNodeByName(receiver)
     port = "5555"
     if getStats:
         time = "30"
     else:
-        time = "250"
+        time = "170"
 
     serverCommand = f"iperf3 -s -p {port} -i 1 -1"
     clientCommand = f"iperf3 -c {server.IP()} -p {port} -b {bandWidth} -R -t {time} -J"
@@ -375,6 +391,10 @@ def generateTraffic(sender: str, receiver: str, getStats: bool, bandWidth: str):
     serverThread.daemon = True
     clientThread = HostCommand(client, clientCommand) 
     clientThread.daemon = True
+    if getStats == False:
+        activeThreadList.append(serverThread)
+        activeThreadList.append(clientThread)
+
 
     streamListener = StreamListener("s0-eth4")
     streamListener.daemon = True
@@ -810,9 +830,8 @@ def scenerio_1():
     floodlightRestApi.flowPusher(flow_h19_h21_2)
     floodlightRestApi.flowPusher(flow_h19_h21_2_r)
     
-
-
-    
 if __name__ == '__main__':
     setLogLevel('info')
-    startNetwork()
+    for i in range(3):
+        startNetwork()
+        sleep(5)
