@@ -9,8 +9,7 @@ columns = ['average_rtt', 'packet_loss',
            "dst2src_max_ps", "bidirectional_min_piat_ms", "bidirectional_mean_piat_ms", "bidirectional_stddev_piat_ms", "bidirectional_max_piat_ms",
            "src2dst_min_piat_ms", "src2dst_mean_piat_ms", "src2dst_stddev_piat_ms", "src2dst_max_piat_ms", "dst2src_min_piat_ms",
            "dst2src_mean_piat_ms", "dst2src_stddev_piat_ms", "dst2src_max_piat_ms",
-           'psnr', 'ssim_first_value', 'ssim_second_value', 
-           'traffic_type']
+           'psnr', 'ssim_first_value', 'ssim_second_value', "original_file_size", "file_size", "time", "traffic_time", 'traffic_type']
 
 df = pd.DataFrame(columns=columns)
 

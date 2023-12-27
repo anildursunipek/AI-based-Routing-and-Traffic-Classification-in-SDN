@@ -17,6 +17,7 @@ import floodlightRestApi
 import subprocess
 from nfstream import NFStreamer
 import pandas as pd
+import os
 
 class NsfnetTopo(Topo):
     """
@@ -123,6 +124,8 @@ def startNetwork():
 
     global net
     global activeThreadList
+    global trafficTime
+    trafficTime = 200
     activeThreadList = []
     net = None
 
@@ -156,6 +159,7 @@ def startNetwork():
     # Start traffic
     info(f'[INFO]****** Active thread count: {threading.active_count()}\n')
     info('[INFO]****** Generating artificial traffic *****\n')
+    dataRow["traffic_time"] = trafficTime
     time_1 = perf_counter()
     print("Time Passed: ", time_1 - start)
 
@@ -248,6 +252,7 @@ def startNetwork():
 
     time_2 = perf_counter()
     print("Time passed: ", time_2 - start)
+    dataRow["time"] = time_2 - time_1
 
     # Calculate PSNR and SSIM
     info(f'[INFO]****** Calculating PSNR Value *****\n')
@@ -262,11 +267,10 @@ def startNetwork():
     print("SSIM: ", ssimResult_first, " || ", ssimResult_second)
 
     info(f'[INFO]****** Active thread count: {threading.active_count()}\n')
-    info(f'[INFO]****** Mininet Cleaning *****\n')
-    cleanMininet()
-    sleep(2)
 
     info(f'[INFO]****** Video File Removing *****\n\n')
+    dataRow['original_file_size'] = os.path.getsize("../assets/surreal.ts")
+    dataRow['file_size'] = os.path.getsize("records/input.ts")
     try:
         deleteFile("records/input.ts")
     except Exception as e:
@@ -279,17 +283,24 @@ def startNetwork():
     dataFrame = pd.concat([dataFrame, df_dictionary], ignore_index=True)
     dataFrame.to_csv("data.csv", sep=',', index=False, encoding='utf-8')
 
-    end = perf_counter() # time.perf_counter()
-    diff = end - start
-    info(f'[INFO]****** Completed in {diff} seconds *****\n')
     info(f'[INFO]****** Active thread count: {threading.active_count()}\n')
 
     for thread in activeThreadList:
         print(thread)
         print("Thread waiting...")
+        while(thread.is_alive()):
+            print("Thread waiting...")
+            sleep(3)
         thread.join()
         print("Thread done...")
 
+    info(f'[INFO]****** Mininet Cleaning *****\n')
+    cleanMininet()
+    sleep(5)
+
+    end = perf_counter() # time.perf_counter()
+    diff = end - start
+    info(f'[INFO]****** Completed in {diff} seconds *****\n')
     # sys.exit()
 
 def deleteFile(fileName: str):
@@ -377,12 +388,13 @@ def getPingStats(sender: str, receiver: str) -> [float, float]:
 
 def generateTraffic(sender: str, receiver: str, getStats: bool, bandWidth: str):
     global activeThreadList
+    global trafficTime
     server, client = net.getNodeByName(sender), net.getNodeByName(receiver)
     port = "5555"
     if getStats:
         time = "30"
     else:
-        time = "170"
+        time = str(trafficTime)
 
     serverCommand = f"iperf3 -s -p {port} -i 1 -1"
     clientCommand = f"iperf3 -c {server.IP()} -p {port} -b {bandWidth} -R -t {time} -J"
@@ -394,7 +406,6 @@ def generateTraffic(sender: str, receiver: str, getStats: bool, bandWidth: str):
     if getStats == False:
         activeThreadList.append(serverThread)
         activeThreadList.append(clientThread)
-
 
     streamListener = StreamListener("s0-eth4")
     streamListener.daemon = True
@@ -832,6 +843,7 @@ def scenerio_1():
     
 if __name__ == '__main__':
     setLogLevel('info')
-    for i in range(3):
+    for i in range(26):
         startNetwork()
+        print(f"******* {i}. veri üretildi")
         sleep(5)
