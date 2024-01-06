@@ -27,12 +27,12 @@ class NsfnetTopo(Topo):
     """
     def build( self, **params ):
         # Hosts
-        hostCount = 12
+        hostCount = 20
         h0 = self.addHost('h0', ip='10.0.0.1', cpu=0.8/hostCount)
         h1 = self.addHost('h1', ip='10.0.0.2', cpu=0.8/hostCount)
         h2 = self.addHost('h2', ip='10.0.0.3', cpu=0.8/hostCount)
         h3 = self.addHost('h3', ip='10.0.0.4', cpu=0.8/hostCount)
-        # h4 = self.addHost('h4', ip='10.0.0.5', cpu=0.8/hostCount)
+        h4 = self.addHost('h4', ip='10.0.0.5', cpu=0.8/hostCount)
         h5 = self.addHost('h5', ip='10.0.0.6', cpu=0.8/hostCount)
         # h6 = self.addHost('h6', ip='10.0.0.7', cpu=0.8/hostCount)
         h7 = self.addHost('h7', ip='10.0.0.8', cpu=0.8/hostCount)
@@ -50,6 +50,8 @@ class NsfnetTopo(Topo):
         h19 = self.addHost('h19', ip='10.0.0.20', cpu=0.8/hostCount)
         h20 = self.addHost('h20', ip='10.0.0.21', cpu=0.8/hostCount)
         h21 = self.addHost('h21', ip='10.0.0.22', cpu=0.8/hostCount)
+        h22 = self.addHost('h22', ip='10.0.0.23', cpu=0.8/hostCount)
+
 
         # Switches
         s0 = self.addSwitch('s0', dpid='00:00:00:00:00:00:00:01', protocols="OpenFlow13")
@@ -100,7 +102,7 @@ class NsfnetTopo(Topo):
         self.addLink(s1, h1, **linkopts1)
         self.addLink(s2, h2, **linkopts1)
         self.addLink(s3, h3, **linkopts1)
-        # self.addLink(s4, h4, **linkopts1)
+        self.addLink(s4, h4, **linkopts1)
         self.addLink(s5, h5, **linkopts1)
         # self.addLink(s6, h6, **linkopts1)
         self.addLink(s7, h7, **linkopts1)
@@ -120,6 +122,7 @@ class NsfnetTopo(Topo):
         self.addLink(s2, h19, **linkopts1)
         self.addLink(s10, h20, **linkopts1)
         self.addLink(s5, h21, **linkopts1)
+        self.addLink(s3, h22, **linkopts1)
         
 def startNetwork():
     start = perf_counter() # time.perf_counter()
@@ -127,12 +130,9 @@ def startNetwork():
     global net
     global activeThreadList
     global trafficTime
-    trafficTime = 10000
+    trafficTime = 600
     activeThreadList = []
     net = None
-
-    dataFrame = pd.read_csv('data.csv')
-    dataRow = {}
 
     net = Mininet(topo=NsfnetTopo(), link=TCLink, build=False, switch=OVSKernelSwitch, autoSetMacs=True, waitConnected=True)
 
@@ -162,7 +162,6 @@ def startNetwork():
     # Start traffic
     info(f'[INFO]****** Active thread count: {threading.active_count()}\n')
     info('[INFO]****** Generating artificial traffic *****\n')
-    dataRow["traffic_time"] = trafficTime
     time_1 = perf_counter()
     print("Time Passed: ", time_1 - start)
 
@@ -178,53 +177,47 @@ def startNetwork():
     generateTraffic(sender="h5", receiver="h2", getStats=False, bandWidth="100M")
     generateTraffic(sender="h21", receiver="h19", getStats=False, bandWidth="100M")
 
+    generateTraffic(sender="h4", receiver="h22", getStats=False, bandWidth="3M")
+
+
     sleep(13) # time.sleep
     info(f'[INFO]****** Active thread count: {threading.active_count()}\n')
 
     routingAlgorithm(src_ipv4="10.0.0.1", dst_ipv4="10.0.0.10")
-    print("beklemede")
-    sleep(600)
-    cleanMininet()
-    sys.exit()
+    # print("beklemede")
+    # sleep(600)
+    # cleanMininet()
+    # sys.exit()
+
+    getPingStats("h0", "h9", getStats=True)
+    getThroughput(sender = "h9", receiver = "h0", bandWidth="0")
+
 
     # Start Video Stream
-    info(f'[INFO]****** Video Stream Starting *****\n')
-    startStream(sender = "h9", receiver = "h0")
-    info(f'[INFO]****** Video Stream Ended *****\n')
+    # info(f'[INFO]****** Video Stream Starting *****\n')
+    # startStream(sender = "h9", receiver = "h0")
+    # info(f'[INFO]****** Video Stream Ended *****\n')
     info(f'[INFO]****** Active thread count: {threading.active_count()}\n')
 
     time_2 = perf_counter()
     print("Time passed: ", time_2 - start)
-    dataRow["time"] = time_2 - time_1
 
     # Calculate PSNR and SSIM
-    info(f'[INFO]****** Calculating PSNR Value *****\n')
-    psnr = calculatePSNR()
-    print("PSNR: " , psnr)
-    dataRow['psnr'] = psnr
+    # info(f'[INFO]****** Calculating PSNR Value *****\n')
+    # psnr = calculatePSNR()
+    # print("PSNR: " , psnr)
 
-    info(f'[INFO]****** Calculating SSIM Value *****\n')
-    ssimResult_first, ssimResult_second = calculateSSIM()
-    dataRow['ssim_first_value'] = ssimResult_first
-    dataRow['ssim_second_value'] = ssimResult_second
-    print("SSIM: ", ssimResult_first, " || ", ssimResult_second)
+    # info(f'[INFO]****** Calculating SSIM Value *****\n')
+    # ssimResult_first, ssimResult_second = calculateSSIM()
+    # print("SSIM: ", ssimResult_first, " || ", ssimResult_second)
 
     info(f'[INFO]****** Active thread count: {threading.active_count()}\n')
 
-    info(f'[INFO]****** Video File Removing *****\n\n')
-    dataRow['original_file_size'] = os.path.getsize("../assets/surreal.ts")
-    dataRow['file_size'] = os.path.getsize("records/input.ts")
-    try:
-        deleteFile("records/input.ts")
-    except Exception as e:
-        print(f'Exception occurred: {e}')
-
-    dataRow['traffic_type'] = traffic_type
-    print("dataRow:")
-    print(dataRow)
-    df_dictionary = pd.DataFrame([dataRow])
-    dataFrame = pd.concat([dataFrame, df_dictionary], ignore_index=True)
-    dataFrame.to_csv("data.csv", sep=',', index=False, encoding='utf-8')
+    # info(f'[INFO]****** Video File Removing *****\n\n')
+    # try:
+    #     deleteFile("records/input.ts")
+    # except Exception as e:
+    #     print(f'Exception occurred: {e}')
 
     info(f'[INFO]****** Active thread count: {threading.active_count()}\n')
 
@@ -379,12 +372,18 @@ def killFfmpegPorts(senderNode):
         print("Port Killed: ", result)
         result = senderNode.cmd(commandCheckPort)
 
-def getPingStats(sender: str, receiver: str) -> [float, float]:
+def getPingStats(sender: str, receiver: str, getStats = False) -> [float, float]:
     senderNode, receiverNode = net.getNodeByName(sender), net.getNodeByName(receiver)
     receiverIpv4 = receiverNode.IP()
     print("Receiver ipv4 -> ", receiverIpv4)
-    packetCount = "500"
-    command = f"ping {receiverIpv4} -c {packetCount} -f"
+
+    if getStats == True:
+        packetCount = "60"
+        command = f"ping {receiverIpv4} -c {packetCount} > output2_v3.txt"
+    else:
+        packetCount = "500"
+        command = f"ping {receiverIpv4} -c {packetCount} -f"
+
     result = senderNode.cmd(command)
 
     ping_parser = pingparsing.PingParsing()
@@ -434,6 +433,27 @@ def generateTraffic(sender: str, receiver: str, getStats: bool, bandWidth: str):
             print(stream)
         result = json.loads(clientThread.result)["end"]
         return result, streamListener.stream
+    
+def getThroughput(sender: str, receiver: str, bandWidth: str):
+    server, client = net.getNodeByName(sender), net.getNodeByName(receiver)
+    port = "5555"
+    time = "60"
+
+    serverCommand = f"iperf3 -s -p {port} -i 1 -1"
+    clientCommand = f"iperf3 -c {server.IP()} -p {port} -b {bandWidth} -R -t {time} > output_v3.txt"
+
+    serverThread = HostCommand(server, serverCommand)
+    serverThread.daemon = True
+    clientThread = HostCommand(client, clientCommand) 
+    clientThread.daemon = True
+
+    sleep(1)
+    serverThread.start()
+    sleep(1) # time.sleep
+    clientThread.start()
+
+    serverThread.join()
+    clientThread.join()
 
 class HostCommand(Thread):
     def __init__(self, host: Host, command: str):
@@ -912,6 +932,62 @@ def setTrafficPaths():
     }
     floodlightRestApi.flowPusher(flow_h19_h21_2)
     floodlightRestApi.flowPusher(flow_h19_h21_2_r)
+    #-------------------------------
+    #-------------------------------
+    # H22 --> H4
+    flow_h22_h4_1 = {
+        "switch": "00:00:00:00:00:00:00:04",
+        "name": "flow_h22_h4_1",
+        "cookie": "0",
+        "priority":"32768",
+        "eth_type" : "0x0800" ,
+        "ipv4_src": "10.0.0.23/32",
+        "ipv4_dst": "10.0.0.05/32",
+        "in_port":"6",
+        "active":"true",
+        "actions":"output=2"
+    }
+    flow_h22_h4_1_r = {
+        "switch": "00:00:00:00:00:00:00:04",
+        "name": "flow_h22_h4_1_r",
+        "cookie": "0",
+        "priority":"32768",
+        "eth_type" : "0x0800" ,
+        "ipv4_src": "10.0.0.05/32",
+        "ipv4_dst": "10.0.0.23/32",
+        "in_port":"2",
+        "active":"true",
+        "actions":"output=6"
+    }
+    floodlightRestApi.flowPusher(flow_h22_h4_1)
+    floodlightRestApi.flowPusher(flow_h22_h4_1_r)
+    #-------------------------------
+    flow_h22_h4_2 = {
+        "switch": "00:00:00:00:00:00:00:05",
+        "name": "flow_h22_h4_2",
+        "cookie": "0",
+        "priority":"32768",
+        "eth_type" : "0x0800" ,
+        "ipv4_src": "10.0.0.23/32",
+        "ipv4_dst": "10.0.0.05/32",
+        "in_port":"1",
+        "active":"true",
+        "actions":"output=4"
+    }
+    flow_h22_h4_2_r = {
+        "switch": "00:00:00:00:00:00:00:05",
+        "name": "flow_h22_h4_2_r",
+        "cookie": "0",
+        "priority":"32768",
+        "eth_type" : "0x0800" ,
+        "ipv4_src": "10.0.0.05/32",
+        "ipv4_dst": "10.0.0.23/32",
+        "in_port":"4",
+        "active":"true",
+        "actions":"output=1"
+    }
+    floodlightRestApi.flowPusher(flow_h22_h4_2)
+    floodlightRestApi.flowPusher(flow_h22_h4_2_r)
     #-------------------------------
     #-------------------------------
     
