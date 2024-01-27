@@ -1,6 +1,0 @@
-{
-    "python.analysis.extraPaths": [
-        "./topologies",
-        "./python-api/controller"
-    ]
-}
