@@ -70,3 +70,34 @@ The network consists of a total of 14 switches, 1 client, and 1 server. Addition
 
 ## Data Generator Code Logical Flow Schema
 <div style="align:center"><img src="./assets/data-generator-flow-schema.png"></img></div>
+
+## AI Based Routing
+<p style="text-align:justify">The obtained data was analyzed, and binary classification models were employed to train based on variables affecting the traffic level. Using the model obtained after the training, a routing algorithm was designed. You can access the designed algorithm codes by clicking on the link below.</p>
+
+<div><a href="https://github.com/anildursunipek/AI-based-Routing-and-Traffic-Classification-in-SDN/blob/main/experiment/ai-based-routing-algorithm-experiment.py">AI Based Routing</a></div>
+
+## Algorithm Performance Testing
+<p style="text-align:justify">The artificial intelligence-based routing algorithm proposed by us is being tested on the NSFNET topology in the designed scenario. The scenario includes 19 clients generating traffic, 1 main client (receiving the video), and 1 server (sending the video). Additionally, the Floodlight controller, considered as the brain of the network, is configured with the metric set to the hop count value. The figure illustrates the traffic flows and degrees between hosts, providing a general visualization of the scenario.</p>
+
+<div style="align:center"><img src="./assets/result-scenario-base.png"></img></div>
+
+<p style="text-align:justify">During the testing phase, initially, data transfer between the client and server takes place without any intervention in the network. The Floodlight controller conducts data flow over the shortest path using the hop count metric, following the switches 0-3-8-9. Heavy traffic on this path negatively impacts data flow, leading to data losses. In previous tests, sending video over the path taken by the controller resulted in low-quality values. The figure illustrates the path followed by the Floodlight controller during data transfer.</p>
+
+<div style="align:center"><img src="./assets/floodlight-path.png"></img></div>
+
+<p style="text-align:justify">In the second part of the testing phase, the proposed routing algorithm is being tested. For the test, the same environment variables as the first stage are used. Before the transfer between the client and server, the proposed algorithm operates, identifying the path with low traffic. During the transfer, it follows the switches 0-3-4-5-12-9. Having lower traffic on this path allows for a more successful data transfer. The figure illustrates the path followed by the proposed algorithm during data transfer.</p>
+
+<div style="align:center"><img src="./assets/proposal-path.png"></img></div>
+
+## Result
+
+<p style="text-align:justify">After executing the scenarios for both algorithms, the data collected during the test is compared. For comparison, the network is monitored for 60 seconds, and RTT (Round-Trip Time) and throughput values on the path are recorded. The figure illustrates a line chart comparing the recorded data.</p>
+
+<div style="align:center"><img src="./assets/result-comparison-rtt.png"></img></div>
+<div style="align:center"><img src="./assets/result-comparison-throughput.png"></img></div>
+
+<p style="text-align:justify">In the first test phase, using the default routing algorithm with the hop count metric, an average RTT of 2063.14 ms and a throughput of 2135.90 bps are obtained. In the second phase, an improvement in these metrics is observed with the proposed algorithm, achieving an RTT of 354.05 ms and a throughput of 6313.50 bps. As a result of the comparison, our proposed algorithm successfully identifies the path with low traffic and conducts data transfer along this path.</p>
+
+<hr>
+<hr>
+<div style="align:center"><img src="./assets/thanks.png"></img></div>
