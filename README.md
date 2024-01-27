@@ -53,13 +53,13 @@ NSFNET was specifically designed as a network for information exchange in scient
 
 The network consists of a total of 14 switches, 1 client, and 1 server. Additionally, there is one Floodlight SDN Controller that controls all the switches in the network. These network devices form the foundation for the constructed scenarios. When scenarios are devised, different clients are added to the network, and traffic is generated among them.</p>
 <div align="center">Scenario-1</div>
-<div style="align:center"><img src="./assets/CDN Diagram-senaryo-1.png"></img></div>
+<div style="align:center"><img src="./assets/CDN-Diagram-Scenario-1.png"></img></div>
 <p style="text-align:justify">In the scenario, two different traffic levels are established between the sender and receiver, with 4 clients assigned to switches 3 and 8 each. In the low-traffic environment, the selected 4 clients establish 2 connections among themselves, generating TCP traffic and utilizing approximately 30% of the bandwidth. In the high-traffic environment, 8 clients establish 4 connections among themselves, creating TCP traffic and utilizing approximately 90% of the bandwidth. After the traffic is generated, video transmission occurs between the main client and the server in the environment.</p>
 <div align="center">Scenario-2</div>
-<div style="align:center"><img src="./assets/CDN Diagram-senaryo-2.png"></img></div>
+<div style="align:center"><img src="./assets/CDN Diagram-Scenario-2.png"></img></div>
 <p style="text-align:justify">In the second scenario, 4 clients are assigned to switches 1 and 10 each. In the low-traffic environment, similar to the first scenario, the 4 clients establish 2 connections among themselves, generating TCP traffic and utilizing approximately 30% of the bandwidth. In the high-traffic environment, 8 clients establish 4 connections among themselves, creating TCP traffic and utilizing approximately 90% of the bandwidth. Video transmission is conducted in both cases to perform tests.</p>
 <div align="center">Scenario-3</div>
-<div style="align:center"><img src="./assets/CDN Diagram-senaryo-3.png"></img></div>
+<div style="align:center"><img src="./assets/CDN-Diagram-Scenario-3.png"></img></div>
 <p style="text-align:justify">In the third scenario, the number of hops is once again increased, and a path with a length of 5 hops is chosen. Video transmission between the client and the server follows the switches 0 - 2 - 5 - 13 - 10 - 9. Similar to the other scenarios, both low and high traffic are generated in this scenario, with the same number of clients and the same amount of bandwidth being used. Clients responsible for generating traffic are assigned to switches 2 and 10, following the same principles as in the previous scenarios.</p>
 
 ### Obtaining Paths Information
@@ -69,4 +69,4 @@ The network consists of a total of 14 switches, 1 client, and 1 server. Addition
 <div><a href="https://github.com/anildursunipek/AI-based-Routing-and-Traffic-Classification-in-SDN/blob/main/experiment/nsfnet_topology_scenario.py">Data Generator Example Code</a></div>
 
 ## Data Generator Code Logical Flow Schema
-<div style="align:center"><img src="./assets/"></img></div>
+<div style="align:center"><img src="./assets/data-generator-flow-schema.png"></img></div>
