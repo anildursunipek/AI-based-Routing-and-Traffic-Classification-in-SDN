@@ -1,6 +1,7 @@
 import xgboost as xgb
 import numpy as np
 
+# XGBOOST model prediction example
 loaded_model = xgb.XGBClassifier()
 loaded_model.load_model('models/xgboost_binary_classification.json')
 

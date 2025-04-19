@@ -8,7 +8,6 @@ from mininet.net import Mininet
 from mininet.node import RemoteController, OVSKernelSwitch, CPULimitedHost, Host
 from mininet.topo import Topo
 from mininet.link import TCLink
-from mininet.cli import CLI
 import json
 import pingparsing
 import threading
@@ -174,10 +173,6 @@ def startNetwork():
     # generateTraffic(sender="h17", receiver="h15", getStats=False, bandWidth="100M")
     # generateTraffic(sender="h20", receiver="h18", getStats=False, bandWidth="100M")
     # traffic_type = 3
-
-    # sleep(300)
-    # cleanMininet()
-    # sys.exit()
 
     sleep(13) # time.sleep
     info(f'[INFO]****** Active thread count: {threading.active_count()}\n')
@@ -413,7 +408,6 @@ def generateTraffic(sender: str, receiver: str, getStats: bool, bandWidth: str):
     serverThread.start()
     sleep(1) # time.sleep
     clientThread.start()
-
     
     if getStats: 
         serverThread.join()

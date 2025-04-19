@@ -8,7 +8,6 @@ from mininet.net import Mininet
 from mininet.node import RemoteController, OVSKernelSwitch, CPULimitedHost, Host
 from mininet.topo import Topo
 from mininet.link import TCLink
-from mininet.cli import CLI
 import json
 import pingparsing
 import threading

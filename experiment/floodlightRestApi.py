@@ -175,6 +175,7 @@ def getSwitchStatByPort(switch:str, port):
     response_json = response.json()
     return response_json
 
+# Code example to show how to use floodlight rest api
 if __name__ == "__main__":
     # getPathById Test Codes
     # src_dpid = "00:00:00:00:00:00:00:01"

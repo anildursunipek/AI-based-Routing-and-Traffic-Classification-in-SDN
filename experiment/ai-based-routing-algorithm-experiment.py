@@ -189,13 +189,13 @@ def startNetwork():
     # cleanMininet()
     # sys.exit()
 
-    getPingStats("h0", "h9", getStats=True)
-    getThroughput(sender = "h9", receiver = "h0", bandWidth="0")
+    # getPingStats("h0", "h9", getStats=True)
+    # getThroughput(sender = "h9", receiver = "h0", bandWidth="0")
 
 
     # Start Video Stream
     # info(f'[INFO]****** Video Stream Starting *****\n')
-    # startStream(sender = "h9", receiver = "h0")
+    startStream(sender = "h9", receiver = "h0")
     # info(f'[INFO]****** Video Stream Ended *****\n')
     info(f'[INFO]****** Active thread count: {threading.active_count()}\n')
 
@@ -345,8 +345,8 @@ def startStream(sender:str, receiver:str):
     receiverUrl = f"udp://{receiverNode.IP()}:{port}"
 
     senderCommand = f"ffmpeg -re -i {videoSource} -c copy -f mpegts {receiverUrl}"
-    # receiverCommand = f"ffplay -i {receiverUrl}"
-    receiverCommand = f"ffmpeg -i {receiverUrl} -c copy records/input.ts"
+    receiverCommand = f"ffplay -i {receiverUrl}"
+    #receiverCommand = f"ffmpeg -i {receiverUrl} -c copy records/input.ts"
 
     senderThread = HostCommand(senderNode, senderCommand)
     receiverThread = HostCommand(receiverNode, receiverCommand) 

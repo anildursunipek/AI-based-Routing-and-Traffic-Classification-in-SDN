@@ -8,7 +8,6 @@ from mininet.net import Mininet
 from mininet.node import RemoteController, OVSKernelSwitch, CPULimitedHost, Host
 from mininet.topo import Topo
 from mininet.link import TCLink
-from mininet.cli import CLI
 import json
 import pingparsing
 import threading
@@ -416,7 +415,6 @@ def generateTraffic(sender: str, receiver: str, getStats: bool, bandWidth: str):
     sleep(1) # time.sleep
     clientThread.start()
 
-    
     if getStats: 
         serverThread.join()
         clientThread.join()

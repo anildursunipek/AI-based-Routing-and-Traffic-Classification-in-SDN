@@ -1,5 +1,6 @@
 import pandas as pd
 
+# Base columns for generated dataset
 columns = ['average_rtt', 'packet_loss', 
            'bits_per_second', 'bu_ratio','retransmits', 'cpu_host_total', 'cpu_host_user', 'cpu_host_system', 'cpu_remote_total', 'cpu_remote_user', 'cpu_remote_system', 
            "bidirectional_duration_ms", "bidirectional_packets", "bidirectional_bytes", "src2dst_duration_ms", "src2dst_packets",
