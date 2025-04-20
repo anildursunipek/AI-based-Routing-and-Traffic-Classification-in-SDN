@@ -71,7 +71,6 @@ The network consists of a total of 14 switches, 1 client, and 1 server. Addition
 
 <p style="text-align:justify">Information about the path for the transfer between the client and server is obtained using different tools. These pieces of information serve as references for classifying the traffic level of the selected connection path. Additionally, it reveals the effects arising from the traffic levels before and after the transfer.</p>
 
-<div><a href="https://github.com/anildursunipek/AI-based-Routing-and-Traffic-Classification-in-SDN/blob/main/experiment/video_stream_data_on_mininet.csv">Collected Data</a></div>
 <div><a href="https://github.com/anildursunipek/AI-based-Routing-and-Traffic-Classification-in-SDN/blob/main/experiment/nsfnet_topology_scenario.py">Data Generator Example Code</a></div>
 
 ## Data Generator Code Logical Flow Schema
