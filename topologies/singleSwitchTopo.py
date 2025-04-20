@@ -43,7 +43,6 @@ def run():
 if __name__ == "__main__":
     setLogLevel("info") # Tell mininet to print useful information
     run()
-
     """
     Output
     ------

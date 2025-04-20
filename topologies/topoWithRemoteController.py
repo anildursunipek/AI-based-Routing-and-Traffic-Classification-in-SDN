@@ -10,7 +10,6 @@ from mininet.util import irange
 
 HOME_FOLDER = os.getenv('HOME')
 
-
 class LinearTopo(Topo):
     """
     construct a network of N hosts and N-1 switches, connected as follows:
@@ -34,7 +33,6 @@ class LinearTopo(Topo):
             if last:
                 self.addLink( last, switch )
             last = switch
-
 
         # Wire up hosts
         self.addLink( hosts[ 0 ], switches[ 0 ] )

@@ -1,6 +1,4 @@
-from mininet.cli import CLI
 from mininet.log import setLogLevel
-from mininet.node import OVSSwitch
 from mininet.topo import LinearTopo
 from mininet.net import Mininet
 

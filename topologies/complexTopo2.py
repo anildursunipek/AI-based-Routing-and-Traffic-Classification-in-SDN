@@ -11,7 +11,6 @@ class CustomTopo(Topo):
     def build( self, **params ):
         #hosts = [ self.addHost('h%s' % h) for h in range(1,numberOfHostes + 1)]
         #switches = [ self.addSwitch('s%s' % s) for s in range(1,numberOfSwitches + 1)]
-
         #hosts
         h1 = self.addHost('h1')
         h2 = self.addHost('h2')

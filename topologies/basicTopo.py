@@ -11,11 +11,9 @@ class BasicCustomTopo(Topo):
         h1_0 = self.addHost('h1_0')
         h1_1 = self.addHost('h1_1')
         h1_2 = self.addHost('h1_2')
-
         "Add Switches"
         s0 = self.addSwitch('s1')
         s1 = self.addSwitch('s2')
-
         "Add links"
         self.addLink(h0_0, s0)
         self.addLink(h0_1, s0)

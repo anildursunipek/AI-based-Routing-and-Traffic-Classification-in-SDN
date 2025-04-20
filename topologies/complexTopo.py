@@ -74,7 +74,6 @@ class ComplexTopo(Topo):
         self.addLink(s19, s20, **linkopts2)
         self.addLink(s20, s21, **linkopts2)  
         self.addLink(s21, s22, **linkopts2)
-
         self.addLink(s2, s9, **linkopts2)
 
         # swith to host / First Path

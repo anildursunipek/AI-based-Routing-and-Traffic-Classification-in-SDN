@@ -67,7 +67,6 @@ class NsfnetTopo(Topo):
         self.addLink(s10, s13, **linkopts2)
         self.addLink(s11, s12, **linkopts2)
 
-
         # swith to host
         self.addLink(s0, h0, **linkopts1)
         self.addLink(s1, h1, **linkopts1)

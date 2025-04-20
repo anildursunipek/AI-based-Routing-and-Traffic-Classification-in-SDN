@@ -50,8 +50,6 @@ class NsfnetTopo(Topo):
         h20 = self.addHost('h20', ip='10.0.0.21', cpu=0.8/hostCount)
         h21 = self.addHost('h21', ip='10.0.0.22', cpu=0.8/hostCount)
 
-
-
         # Switches
         s0 = self.addSwitch('s0', dpid='00:00:00:00:00:00:00:01', protocols="OpenFlow13")
         s1 = self.addSwitch('s1', dpid='00:00:00:00:00:00:00:02', protocols="OpenFlow13")
@@ -155,7 +153,6 @@ def startNetwork():
     path_index = 0
     floodlightRestApi.pathPusher(src_host_mac, src_host_ipv4, dst_host_mac, dst_host_ipv4, num_paths, path_index)
 
-
     # Start traffic
     # 1 connection --> Low traffic
     # 2 connection --> Normal traffic
@@ -178,8 +175,6 @@ def startNetwork():
     generateTraffic(sender="h17", receiver="h15", getStats=False, bandWidth="100M")
     generateTraffic(sender="h20", receiver="h18", getStats=False, bandWidth="100M")
     generateTraffic(sender="h21", receiver="h19", getStats=False, bandWidth="100M")
-
-
     
     sleep(15) # time.sleep
     info(f'[INFO]****** Active thread count: {threading.active_count()}\n')
