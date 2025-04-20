@@ -19,7 +19,8 @@ from nfstream import NFStreamer
 import pandas as pd
 import os
 import numpy as np
-import xgboost as xgb
+from sklearn.linear_model import LogisticRegression
+import joblib
 
 class NsfnetTopo(Topo):
     """
@@ -240,8 +241,7 @@ def startNetwork():
     # sys.exit()
 
 def routingAlgorithm(src_ipv4, dst_ipv4):
-    loaded_model = xgb.XGBClassifier()
-    loaded_model.load_model('models/xgboost_binary_classification.json')
+    loaded_model = joblib.load('models/logistic_regression_model.pkl')
     paths = []
 
     for i in range(5):
